@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 **Objective:**
-Develop a "link in bio" platform clone within an existing Next.js application, enabling hotels to display and sell services through customizable profiles.
+Develop a "link in bio" platform clone enabling hotels to display and sell services through customizable profiles.
 
 **Existing Architecture:**
 - **Authentication:** Handled in `(auth-pages)` with routes for `forgot-password`, `sign-in`, and `sign-up`.
