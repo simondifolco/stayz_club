@@ -1,0 +1,50 @@
+---
+description: Project we are building
+globs: 
+alwaysApply: false
+---
+**Objective:**
+Develop a "link in bio" platform clone within an existing Next.js application, enabling hotels to display and sell services through customizable profiles.
+
+**Existing Architecture:**
+- **Authentication:** Handled in `(auth-pages)` with routes for `forgot-password`, `sign-in`, and `sign-up`.
+- **Protected Route:** `dashboard/page.tsx` is accessible only to authenticated users.
+- **Directory Structure:** Includes `auth/callback`, `actions.ts`, `globals.css`, `layout.tsx`, and `page.tsx`.
+
+**Implementation Plan:**
+
+1. **Profile Management:**
+   - **Component:** `dashboard/profile.tsx`
+   - **Functionality:** Allow hotels to update profile information and list services.
+   - **Actions:** Use `actions.ts` to handle form submissions and data updates.
+
+2. **Service Listing:**
+   - **Component:** `components/ServiceListing.tsx`
+   - **Functionality:** Display services with descriptions, pricing, and availability.
+   - **Integration:** Ensure seamless integration with the hotel profile.
+
+3. **Booking and Payment:**
+   - **Component:** `components/BookingWidget.tsx`
+   - **Functionality:** Integrate with a secure payment gateway for transactions.
+   - **Notifications:** Handle booking confirmations and user notifications.
+
+4. **Analytics Dashboard:**
+   - **Component:** `components/AnalyticsDashboard.tsx`
+   - **Functionality:** Visualize data on bookings, sales, and customer engagement.s
+
+5. **Styling and Responsiveness:**
+   - **File:** `globals.css` or new CSS modules
+   - **Design:** Ensure a responsive and user-friendly interface.
+
+6. **Routing:**
+   - **Protection:** Ensure `dashboard/page.tsx` is protected and accessible only to authenticated users.
+   - **New Routes:** Add routes for new pages and components within the dashboard.
+
+7. **Testing:**
+   - **Coverage:** Implement unit and integration tests for new components and functionality.
+   - **Error Handling:** Ensure the application handles edge cases and errors gracefully.
+
+**Optimization Considerations:**
+- **Performance:** Optimize data fetching and rendering for large datasets.
+- **Security:** Implement robust security measures for user data and transactions.
+- **User Experience:** Focus on intuitive navigation and seamless interactions.
