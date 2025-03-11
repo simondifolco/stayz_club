@@ -1,0 +1,16 @@
+---
+description: AI Concierge agent
+globs: 
+alwaysApply: false
+---
+# AI Concierge
+
+## Components
+- **Concierge:** AI-powered concierge component.
+
+## Steps
+1. Integrate an AI service to power the concierge functionality.
+2. Develop context-aware responses based on Hotel data.
+3. Implement a chat interface for customers to interact with the AI Concierge.
+4. Use functional components and TypeScript interfaces.
+5. Optimize performance by wrapping client components in Suspense with fallback.

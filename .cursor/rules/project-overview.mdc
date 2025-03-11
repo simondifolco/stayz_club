@@ -1,0 +1,27 @@
+---
+description: Project Overview
+globs: 
+alwaysApply: false
+---
+# Project Overview
+
+This project aims to create a link-in-bio platform for Hotels, allowing them to display links, information, and services. Additionally, an AI Concierge will be integrated to assist Hotel customers via a chat interface.
+
+## Key Features
+- Dashboard for managing content.
+- Public-facing dynamic links for Hotel customers.
+- AI Concierge for context-aware assistance.
+
+## Technology Stack
+- Next.js with App Directory
+- Tailwind CSS for styling
+- Shadcn UI and Radix UI components
+- Supabase for authentication and database
+- AI service for Concierge functionality
+
+## Code Style and Structure
+- Concise, technical TypeScript code.
+- Functional and declarative programming patterns.
+- Modularization over code duplication.
+- Descriptive variable names.
+- Structured files with exported components, subcomponents, helpers, static content, and types.

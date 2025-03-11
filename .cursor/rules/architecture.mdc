@@ -1,0 +1,34 @@
+---
+description: Architecture Example
+globs: 
+alwaysApply: false
+---
+/app
+  /auth
+    callback.tsx
+  /dashboard
+    page.tsx
+    dashboard.tsx
+    services.tsx
+    links.tsx
+  /h
+    [id]
+      page.tsx
+      public-page.tsx
+  /forgot-password
+    page.tsx
+  /sign-in
+    page.tsx
+  /sign-up
+    page.tsx
+  actions.ts
+  globals.css
+  layout.tsx
+  page.tsx
+/components
+  concierge.tsx
+  card.tsx
+  service-card.tsx
+/lib
+  supabase-client.ts
+  concierge-logic.ts

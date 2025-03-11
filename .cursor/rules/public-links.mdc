@@ -1,0 +1,16 @@
+---
+description: Public Customer Link
+globs: 
+alwaysApply: false
+---
+# Public Links
+
+## Components
+- **PublicPage:** Public-facing page for Hotel customers.
+
+## Steps
+1. Create a dynamic route for H pages in `/h/[id]/page.tsx`.
+2. Fetch H data from Supabase and display it using `public-page.tsx`.
+3. Ensure the page is SEO-friendly and responsive.
+4. Use Tailwind CSS for a mobile-first approach.
+5. Optimize images with WebP format and lazy loading.
