@@ -5,23 +5,53 @@ alwaysApply: false
 ---
 # Project Overview
 
-This project aims to create a link-in-bio platform for Hotels, allowing them to display links, information, and services. Additionally, an AI Concierge will be integrated to assist Hotel customers via a chat interface.
+## Introduction
 
-## Key Features
-- Dashboard for managing content.
-- Public-facing dynamic links for Hotel customers.
-- AI Concierge for context-aware assistance.
+The hotel link in bio platform aims to provide a seamless way for hotels to share their booking links, promotions, and other relevant information through a single, customizable link.
 
-## Technology Stack
-- Next.js with App Directory
-- Tailwind CSS for styling
-- Shadcn UI and Radix UI components
-- Supabase for authentication and database
-- AI service for Concierge functionality
+### Features
 
-## Code Style and Structure
-- Concise, technical TypeScript code.
-- Functional and declarative programming patterns.
-- Modularization over code duplication.
-- Descriptive variable names.
-- Structured files with exported components, subcomponents, helpers, static content, and types.
+- **Customizable Links**: Users can create and customize their bio links with various themes and styles.
+- **Modules Management**: Configure and display modules on bio links.
+- **Analytics Dashboard**: Track link views, modules interactions, and user engagement.
+- **Integrations**: Integrate with popular booking platforms and social media.
+- **Responsive Design**: Ensure the platform is accessible on all devices.
+- **SEO Optimization**: Improve discoverability through search engines.
+
+### User Roles
+
+- **Admin**: Manage users, monitor platform usage, and configure settings.
+- **Hotel Owner**: Create and manage bio links, view analytics, and customize themes.
+- **Guest**: View and interact with bio links.
+
+### Tech Stack
+
+- **Frontend**: Next.js, React, TypeScript, Shadcn UI, Radix UI, Tailwind CSS.
+- **Backend**: Next.js API routes, Supabase.
+- **Database**: Supabase for user data and link management.
+- **Authentication**: Supabase Auth.
+
+### Development Workflow
+
+- **Version Control**: Use Git for version control.
+- **Branching Strategy**: Follow GitFlow for branching strategy.
+- **Code Reviews**: Conduct code reviews for all pull requests.
+- **Testing**: Implement unit and integration tests using Jest and React Testing Library.
+
+### Performance Considerations
+
+- **Optimization**: Use React Server Components (RSC) and dynamic loading.
+- **Image Handling**: Optimize images with WebP format and lazy loading.
+- **Caching**: Implement caching for static assets.
+
+### Security Measures
+
+- **Authentication**: Use Supabase for secure authentication.
+- **Data Validation**: Validate all incoming data on the server side.
+- **Error Handling**: Implement robust error handling and logging.
+
+### Deployment
+
+- **Hosting**: Deploy on Vercel or Netlify.
+- **CI/CD**: Set up continuous integration and deployment pipelines.
+- **Monitoring**: Use tools like Sentry for error tracking and monitoring.

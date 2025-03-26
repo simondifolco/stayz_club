@@ -1,34 +1,86 @@
 ---
-description: Architecture Example
+description: architecture
 globs: 
 alwaysApply: false
 ---
-/app
-  /auth
-    callback.tsx
-  /dashboard
-    page.tsx
-    dashboard.tsx
-    services.tsx
-    links.tsx
-  /h
-    [id]
-      page.tsx
-      public-page.tsx
-  /forgot-password
-    page.tsx
-  /sign-in
-    page.tsx
-  /sign-up
-    page.tsx
-  actions.ts
-  globals.css
-  layout.tsx
-  page.tsx
-/components
-  concierge.tsx
-  card.tsx
-  service-card.tsx
-/lib
-  supabase-client.ts
-  concierge-logic.ts
+# Recommended Architecture for Project
+
+## Overview
+
+The architecture for the hotel link in bio platform prioritizes scalability, maintainability, and performance. Below is the recommended architecture using the Next.js App Directory structure.
+
+Feel free to make this architecture evolves along the project
+
+### Directory Structure
+
+- **`/app`**: Contains the main application code and routes.
+  - **`/actions.ts`**: Centralized actions for the app.
+  - **`/auth`**: Authentication-related routes and logic.
+    - **`/callback/route.ts`**: Auth callback route.
+  - **`/dashboard`**: Dashboard-related routes and components [dashboard.mdc](mdc:.cursor/rules/dashboard.mdc).
+    - **`/page.tsx`**: Main dashboard page.
+    - **`/reset-password/page.tsx`**: Reset password page.
+    - **`/settings/page.tsx`**: Settings page.
+    - **`/analytics/page.tsx`**: Analytics page for module performance.
+    - **`/integrations/page.tsx`**: Manage third-party integrations.
+    - **`/modules/page.tsx`**: Manage and configure modules.
+    - **`/modules/[id]/page.tsx`**: Edit individual module.
+  - **`/links`**: Dynamic routes for public links. [public-links.mdc](mdc:.cursor/rules/public-links.mdc)
+    - **`/[id]/page.tsx`**: Individual link page displaying modules.
+    - **`/page.tsx`**: Main public links page.
+  - **`/layout.tsx`**: Root layout component.
+  - **`/page.tsx`**: Main entry point for the app.
+  - **`/sign-in/page.tsx`**: Sign-in page.
+  - **`/sign-up/page.tsx`**: Sign-up page.
+  - **`/themes/page.tsx`**: Theme selection and customization page.
+  - **`/notifications/page.tsx`**: Notifications page.
+- **`/components`**: Reusable UI components.
+  - **`/ui`**: General UI components (e.g., buttons, cards).
+- **`/lib`**: Library functions and utilities.
+- **`/utils`**: Utility functions and helpers.
+  - **`/supabase`**: Supabase-related utilities.
+- **`/middleware.ts`**: Middleware for request handling.
+- **`/next.config.ts`**: Next.js configuration.
+- **`/tailwind.config.ts`**: Tailwind CSS configuration.
+
+### Technology Stack
+
+- **Frontend**: Next.js with React, TypeScript, Shadcn UI, Radix UI, and Tailwind CSS.
+- **Backend**: Next.js API routes or external modules.
+- **Database**: Supabase for user management and data storage.
+- **State Management**: React Context API or Zustand for global state.
+
+### Key Principles
+
+- **Modularization**: Break down the application into small, reusable components.
+- **Server-Side Rendering (SSR)**: Use Next.js SSR for improved performance and SEO.
+- **Responsive Design**: Implement mobile-first design with Tailwind CSS.
+- **Performance Optimization**: Use React Server Components (RSC) and dynamic loading.
+
+### Data Flow
+
+- **Data Fetching**: Use Next.js data fetching methods (e.g., `getStaticProps`, `getServerSideProps`).
+- **State Management**: Minimize client-side state; use context for global state.
+- **API Integration**: Use Next.js API routes for server-side logic.
+
+### Security
+
+- **Authentication**: Implement authentication using Supabase.
+- **Authorization**: Use role-based access control (RBAC) for different user roles.
+- **Data Validation**: Validate all incoming data on the server side.
+
+### Performance
+
+- **Image Optimization**: Use WebP format and lazy loading.
+- **Code Splitting**: Use dynamic imports for non-critical components.
+- **Caching**: Implement caching strategies for static data.
+
+### Monitoring
+
+- **Web Vitals**: Optimize for Core Web Vitals (LCP, CLS, FID).
+- **Error Tracking**: Use tools like Sentry for error tracking.
+
+### Deployment
+
+- **CI/CD**: Set up continuous integration and deployment pipelines.
+- **Hosting**: Deploy on Vercel or Netlify for seamless integration with Next.js.

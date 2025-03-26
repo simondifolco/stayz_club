@@ -1,16 +1,74 @@
 ---
-description: Public Customer Link
+description: Public Links 
 globs: 
 alwaysApply: false
 ---
 # Public Links
 
-## Components
-- **PublicPage:** Public-facing page for Hotel customers.
+## Overview
 
-## Steps
-1. Create a dynamic route for H pages in `/h/[id]/page.tsx`.
-2. Fetch H data from Supabase and display it using `public-page.tsx`.
-3. Ensure the page is SEO-friendly and responsive.
-4. Use Tailwind CSS for a mobile-first approach.
-5. Optimize images with WebP format and lazy loading.
+Public links are the user-facing bio links that hotels share with their audience. These links display the modules configured in the dashboard and should be optimized for performance, accessibility, and SEO.
+
+### Features
+
+- **Customizable Appearance**: Allow hotels to customize the look and feel of their bio links.
+- **Responsive Design**: Ensure links are accessible on all devices.
+- **SEO Optimization**: Improve discoverability through search engines.
+- **Analytics Tracking**: Track link views, module interactions, and user engagement.
+- **Integrations**: Support integrations with booking platforms and social media.
+- **Dynamic Routes**: Use dynamic routing to handle individual bio links displaying moduless.
+- **Theme Customization**: Provide various themes and styles for bio links.
+- **Notifications**: Real-time updates on link performance and user interactions.
+
+### Components
+
+- **LinkDisplay**: Display the bio link with customizable themes and configured moduless.
+- **modulesCard**: Display individual moduless with details and booking options.
+- **BookingButton**: Button for users to book a modules.
+- **SocialMediaLinks**: Links to the hotel's social media profiles.
+- **PromotionBanner**: Display promotional offers.
+- **ContactForm**: Form for users to contact the hotel.
+
+### Layout
+
+- **Header**: Hotel name and logo.
+- **Main Content**: Display the bio link, moduless, and promotional content.
+- **Footer**: Additional links and contact information.
+
+### Dynamic Routes
+
+- **`/links/[id]/page.tsx`**: Dynamic route for individual bio links. The `[id]` parameter is used to fetch and display data specific to each link, including configured moduless.
+
+### Performance
+
+- **Optimization**: Use React Server Components (RSC) and dynamic loading.
+- **Image Handling**: Optimize images with WebP format and lazy loading.
+- **Caching**: Implement caching for static assets.
+
+### SEO
+
+- **Meta Tags**: Use appropriate meta tags for better SEO.
+- **Structured Data**: Implement structured data for rich snippets.
+- **Sitemap**: Generate a sitemap for search engines.
+
+### Analytics
+
+- **Tracking**: Implement tracking for link views, modules interactions, and user engagement.
+- **Reporting**: Provide detailed reports on link performance.
+
+### Security
+
+- **Data Validation**: Validate all incoming data on the server side.
+- **Error Handling**: Implement robust error handling and logging.
+
+### Styling
+
+- **Tailwind CSS**: Use Tailwind for styling components.
+- **Shadcn UI and Radix UI**: Utilize these libraries for pre-built components.
+- **Responsive Design**: Implement a mobile-first approach.
+
+### Testing
+
+- **Unit Tests**: Write unit tests for individual components.
+- **Integration Tests**: Test the integration of components and data fetching.
+- **End-to-End Tests**: Use tools like Cypress for end-to-end testing.

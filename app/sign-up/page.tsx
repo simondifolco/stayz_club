@@ -3,7 +3,9 @@ import { FormMessage, Message } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { Mail, Lock } from "lucide-react";
 import { SmtpMessage } from "../smtp-message";
 
 export default async function Signup(props: {
@@ -20,31 +22,63 @@ export default async function Signup(props: {
 
   return (
     <>
-      <form className="flex flex-col min-w-64 max-w-64 mx-auto">
-        <h1 className="text-2xl font-medium">Sign up</h1>
-        <p className="text-sm text text-foreground">
-          Already have an account?{" "}
-          <Link className="text-primary font-medium underline" href="/sign-in">
-            Sign in
-          </Link>
-        </p>
-        <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
-          <Label htmlFor="email">Email</Label>
-          <Input name="email" placeholder="you@example.com" required />
-          <Label htmlFor="password">Password</Label>
-          <Input
-            type="password"
-            name="password"
-            placeholder="Your password"
-            minLength={6}
-            required
-          />
-          <SubmitButton formAction={signUpAction} pendingText="Signing up...">
-            Sign up
-          </SubmitButton>
-          <FormMessage message={searchParams} />
-        </div>
-      </form>
+      <div className="flex items-center justify-center min-h-[80vh] px-4 py-12">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
+            <CardDescription>
+              Enter your email and create a password to get started
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form className="flex flex-col space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    className="pl-10"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    name="password"
+                    placeholder="Create a password"
+                    className="pl-10"
+                    minLength={6}
+                    required
+                  />
+                </div>
+              </div>
+              <SubmitButton
+                className="w-full"
+                formAction={signUpAction}
+                pendingText="Creating account..."
+              >
+                Create account
+              </SubmitButton>
+              <FormMessage message={searchParams} />
+              <p className="text-sm text-muted-foreground text-center">
+                Already have an account?{" "}
+                <Link className="text-primary hover:underline font-medium" href="/sign-in">
+                  Sign in
+                </Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
       <SmtpMessage />
     </>
   );

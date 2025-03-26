@@ -1,0 +1,64 @@
+---
+description: Dashboard
+globs: 
+alwaysApply: false
+---
+# Dashboard
+
+## Overview
+
+The dashboard is the central hub for hotel owners to manage their bio links, configure modules, view analytics, and customize their profiles.
+
+### Features
+
+- **Link Management**: Create, edit, and delete bio links.
+- **modules Management**: Configure and manage modules displayed on bio links.
+- **Analytics**: View detailed analytics on link views, modules interactions, and user engagement.
+- **Customization**: Customize the appearance of bio links with themes and styles.
+- **Integrations**: Manage integrations with booking platforms and social media.
+- **Notifications**: Receive notifications on link performance and user interactions.
+
+### Components
+
+- **LinkList**: Display a list of created bio links.
+- **LinkEditor**: Edit the details of a bio link.
+- **ModuleManager**: Manage and configure modules.
+- **AnalyticsChart**: Visualize link performance with charts.
+- **ThemeCustomizer**: Customize the theme and style of bio links.
+- **NotificationCenter**: Manage and view notifications.
+
+### Layout
+
+- **Header**: Navigation links and user profile.
+- **Sidebar**: Quick access to dashboard sections.
+- **Main Content**: Display the current view (e.g., LinkList, AnalyticsChart).
+- **Footer**: Additional links and information.
+
+### State Management
+
+- **Global State**: Use React Context API or Zustand for global state management.
+- **Local State**: Use React's `useState` for local component state.
+
+### Performance
+
+- **Lazy Loading**: Use dynamic imports for non-critical components.
+- **Optimization**: Minimize re-renders and optimize data fetching.
+- **Responsive Design**: Ensure the dashboard is accessible on all devices.
+
+### Security
+
+- **Authentication**: Protect the dashboard with Supabase Auth.
+- **Authorization**: Implement role-based access control (RBAC).
+- **Data Validation**: Validate all incoming data on the server side.
+
+### Styling
+
+- **Tailwind CSS**: Use Tailwind for styling components.
+- **Shadcn UI and Radix UI**: Utilize these libraries for pre-built components.
+- **Responsive Design**: Implement a mobile-first approach.
+
+### Testing
+
+- **Unit Tests**: Write unit tests for individual components.
+- **Integration Tests**: Test the integration of components and data fetching.
+- **End-to-End Tests**: Use tools like Cypress for end-to-end testing.
