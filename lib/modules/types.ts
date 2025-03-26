@@ -337,23 +337,26 @@ export interface TicketModuleSettings {
   };
 }
 
-export interface RentalItem {
+export interface Rental {
   id: string;
   name: string;
   description: string;
-  category: string;
-  quantity: number;
-  available: number;
+  category: "sports" | "electronics" | "equipment" | "vehicles" | "other";
   price: number;
   currency: string;
+  quantity: number;
+  availableQuantity: number;
   images: string[];
-  specifications: Record<string, string>;
-  condition: "new" | "excellent" | "good" | "fair";
-  maintenanceSchedule: Array<{
-    date: string;
-    type: "inspection" | "maintenance" | "repair";
-    notes: string;
-  }>;
+  specifications: string[];
+  requirements: string[];
+  isAvailable: boolean;
+  maintenanceSchedule: {
+    lastMaintenance: string;
+    nextMaintenance: string;
+    maintenanceInterval: number;
+  };
+  insuranceRequired: boolean;
+  depositAmount: number;
 }
 
 export interface RentalModuleSettings {
@@ -366,26 +369,15 @@ export interface RentalModuleSettings {
       deadline: number;
       refundPercentage: number;
     };
-    minRentalPeriod: number;
-    maxRentalPeriod: number;
-    requiresInsurance: boolean;
-    damageProtection: {
-      isRequired: boolean;
-      cost: number;
-      coverage: number;
-    };
+    minBookingNotice: number;
+    maxRentalDuration: number;
+    autoConfirm: boolean;
   };
   availability: {
     daysInAdvance: number;
-    operatingHours: Array<{
-      dayOfWeek: number;
-      start: string;
-      end: string;
-    }>;
-    seasonalAdjustments: Array<{
+    specialClosures: Array<{
       startDate: string;
       endDate: string;
-      priceMultiplier: number;
       reason: string;
     }>;
   };

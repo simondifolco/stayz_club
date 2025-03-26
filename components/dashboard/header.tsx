@@ -19,7 +19,7 @@ export function DashboardHeader() {
         <div className="mr-4 hidden md:flex">
           <a className="mr-6 flex items-center space-x-2" href="/dashboard">
             <span className="hidden font-bold sm:inline-block">
-              MHotel
+              stayz club
             </span>
           </a>
         </div>

@@ -88,11 +88,11 @@ export default function RentalsModulePage() {
     enabled: true,
     settings: {
       requiresDeposit: true,
-      depositAmount: 0,
+      depositAmount: 100,
       allowsCancellation: true,
       cancellationPolicy: {
         deadline: 24,
-        refundPercentage: 100,
+        refundPercentage: 80,
       },
       minBookingNotice: 4,
       maxRentalDuration: 14,
@@ -104,158 +104,164 @@ export default function RentalsModulePage() {
     },
   });
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedRental, setSelectedRental] = useState<Rental | undefined>(
-    undefined
-  );
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedRental, setSelectedRental] = useState<Rental | undefined>();
 
-  const handleRentalSubmit = async (data: Omit<Rental, "id">) => {
+  async function handleRentalSubmit(data: Omit<Rental, "id">) {
     try {
       if (selectedRental) {
         // Update existing rental
-        setRentals(
-          rentals.map((rental) =>
-            rental.id === selectedRental.id ? { ...data, id: rental.id } : rental
-          )
+        const updatedRentals = rentals.map((r) =>
+          r.id === selectedRental.id ? { ...data, id: r.id } : r
         );
+        setRentals(updatedRentals);
+        toast.success("Rental item updated successfully");
       } else {
         // Add new rental
-        setRentals([...rentals, { ...data, id: Math.random().toString() }]);
+        const newRental = {
+          ...data,
+          id: Math.random().toString(36).substr(2, 9),
+        };
+        setRentals([...rentals, newRental]);
+        toast.success("Rental item added successfully");
       }
-      setIsDialogOpen(false);
+      setDialogOpen(false);
       setSelectedRental(undefined);
     } catch (error) {
-      console.error("Error submitting rental:", error);
-      toast.error("Failed to save rental");
+      toast.error("Failed to save rental item");
     }
-  };
+  }
 
-  const handleEditRental = (rental: Rental) => {
+  function handleEditRental(rental: Rental) {
     setSelectedRental(rental);
-    setIsDialogOpen(true);
-  };
+    setDialogOpen(true);
+  }
 
-  const handleDeleteRental = (rentalId: string) => {
-    setRentals(rentals.filter((rental) => rental.id !== rentalId));
-    toast.success("Rental deleted successfully");
-  };
+  function handleDeleteRental(rentalId: string) {
+    try {
+      setRentals(rentals.filter((r) => r.id !== rentalId));
+      toast.success("Rental item deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete rental item");
+    }
+  }
 
-  const getCategoryLabel = (category: Rental["category"]) => {
+  function getCategoryLabel(category: Rental["category"]) {
     const labels: Record<Rental["category"], string> = {
-      sports: "Sports",
+      sports: "Sports Equipment",
       electronics: "Electronics",
-      equipment: "Equipment",
+      equipment: "General Equipment",
       vehicles: "Vehicles",
       other: "Other",
     };
     return labels[category];
-  };
+  }
 
   return (
-    <div className="container mx-auto py-6 max-w-7xl">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-4">
-          <Link href="/dashboard/modules">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Link href="/dashboard">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold">Rentals</h1>
+            <h2 className="text-2xl font-bold tracking-tight">Rentals</h2>
             <p className="text-muted-foreground">
               Manage your rental equipment and items
             </p>
           </div>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Rental Item
+        <Button onClick={() => setDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Add Rental Item
         </Button>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {rentals.map((rental) => (
-          <Card key={rental.id}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle>{rental.name}</CardTitle>
-                  <CardDescription className="mt-2">
-                    {rental.description}
-                  </CardDescription>
+      <Separator />
+      <ScrollArea className="h-[calc(100vh-12rem)]">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {rentals.map((rental) => (
+            <Card key={rental.id}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="line-clamp-1">{rental.name}</CardTitle>
+                  <Badge variant="secondary">
+                    {getCategoryLabel(rental.category)}
+                  </Badge>
                 </div>
-                <Badge>{getCategoryLabel(rental.category)}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium">Price</p>
-                  <p className="text-sm text-muted-foreground">
-                    {rental.price} {rental.currency} per day
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Availability</p>
-                  <p className="text-sm text-muted-foreground">
-                    {rental.availableQuantity} of {rental.quantity} available
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Insurance & Deposit</p>
-                  <p className="text-sm text-muted-foreground">
-                    {rental.insuranceRequired ? "Insurance required" : "No insurance required"}
-                    {rental.depositAmount > 0 && ` • ${rental.depositAmount} ${rental.currency} deposit`}
-                  </p>
-                </div>
-                {rental.specifications.length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium">Specifications</p>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {rental.specifications.map((spec, index) => (
-                        <Badge key={index} variant="outline">
-                          {spec}
-                        </Badge>
-                      ))}
-                    </div>
+                <CardDescription className="line-clamp-2">
+                  {rental.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Price:</span>
+                    <span>
+                      {rental.price} {rental.currency} per day
+                    </span>
                   </div>
-                )}
-                {rental.requirements.length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium">Requirements</p>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {rental.requirements.map((req, index) => (
-                        <Badge key={index} variant="outline">
-                          {req}
-                        </Badge>
-                      ))}
-                    </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Availability:</span>
+                    <span>
+                      {rental.availableQuantity} of {rental.quantity} available
+                    </span>
                   </div>
-                )}
-                <div>
-                  <p className="text-sm font-medium">Maintenance</p>
-                  <p className="text-sm text-muted-foreground">
-                    Next maintenance: {new Date(rental.maintenanceSchedule.nextMaintenance).toLocaleDateString()}
-                  </p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Status:</span>
+                    <Badge variant={rental.isAvailable ? "default" : "secondary"}>
+                      {rental.isAvailable ? "Available" : "Unavailable"}
+                    </Badge>
+                  </div>
+                  {rental.specifications.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium mb-1">Specifications:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {rental.specifications.map((spec: string, index: number) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {spec}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {rental.requirements.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium mb-1">Requirements:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {rental.requirements.map((req: string, index: number) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {req}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Insurance:</span>
+                    <span>
+                      {rental.insuranceRequired ? "Required" : "Optional"} •{" "}
+                      {rental.depositAmount} {rental.currency} deposit
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => handleDeleteRental(rental.id)}
-              >
-                Delete
-              </Button>
-              <Button onClick={() => handleEditRental(rental)}>Edit</Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={() => handleDeleteRental(rental.id)}
+                >
+                  Delete
+                </Button>
+                <Button onClick={() => handleEditRental(rental)}>Edit</Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </ScrollArea>
       <RentalDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
         rental={selectedRental}
         onSubmit={handleRentalSubmit}
       />

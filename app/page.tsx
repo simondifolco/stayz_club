@@ -41,7 +41,7 @@ export default async function Home() {
               {/* URL Preview */}
               <div className="max-w-md relative">
                 <div className="bg-background/80 backdrop-blur-sm border border-primary/20 rounded-lg p-3 flex items-center gap-2">
-                  <span className="text-muted-foreground">mhotel.app/</span>
+                  <span className="text-muted-foreground">stayz.club/</span>
                   <Input 
                     placeholder="yourhotel" 
                     className="bg-transparent border-none focus-visible:ring-0 text-foreground placeholder:text-muted-foreground"

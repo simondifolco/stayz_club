@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Twitter, Github, MoreVertical, Pencil, ExternalLink, FileText, Blocks } from "lucide-react";
+import { Plus, Calendar, Globe, MoreVertical, Pencil, ExternalLink, FileText, Blocks } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import {
@@ -32,6 +32,7 @@ import {
   useSensors,
   DragEndEvent,
 } from "@dnd-kit/core";
+import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import {
   arrayMove,
   SortableContext,
@@ -45,6 +46,8 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface Link {
   id: number;
@@ -66,9 +69,36 @@ type Module = {
 
 // Available modules for selection
 const AVAILABLE_MODULES: Module[] = [
-  { id: 'spa', name: 'Spa Booking', description: 'Spa and wellness booking' },
-  { id: 'restaurant', name: 'Restaurant', description: 'Restaurant reservations' },
-  { id: 'concierge', name: 'Concierge', description: 'Concierge services' },
+  {
+    id: "activities",
+    name: "Activities",
+    description: "Experiences near destination",
+  },
+  {
+    id: "wellness",
+    name: "Wellness",
+    description: "Spa, massage, and more",
+  },
+  {
+    id: "dining",
+    name: "Dining",
+    description: "Dining, cooking classes, more",
+  },
+  {
+    id: "tickets",
+    name: "Tickets",
+    description: "Museums, concerts, more",
+  },
+  {
+    id: "rentals",
+    name: "Rentals",
+    description: "Rental equipment for leisure use",
+  },
+  {
+    id: "transfers",
+    name: "Transfers",
+    description: "Transport to and from destinations",
+  }
 ];
 
 interface Block {
@@ -450,7 +480,7 @@ function EditLinkDialog({
   );
 }
 
-function SortableLink({ link, blockId, blocks, onDelete, onEdit }: { 
+const SortableLink = function SortableLink({ link, blockId, blocks, onDelete, onEdit }: { 
   link: Link; 
   blockId: number;
   blocks: Block[];
@@ -464,32 +494,42 @@ function SortableLink({ link, blockId, blocks, onDelete, onEdit }: {
     transform,
     transition,
     isDragging,
+    isSorting,
   } = useSortable({ 
     id: `link-${blockId}-${link.id}`,
     data: {
       type: 'link',
       link,
       blockId,
-    }
+    },
+    transition: {
+      duration: 200,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
+    transition: transition || undefined,
+    zIndex: isDragging ? 1 : undefined,
+    position: isDragging ? 'relative' : undefined,
+    opacity: isDragging ? 0.8 : 1,
+  } as const;
 
   return (
     <div 
       ref={setNodeRef}
       style={style}
-      className={`flex items-center justify-between p-3 rounded-md border mb-2 bg-background
-        ${isDragging ? 'shadow-lg border-border' : 'border-transparent'} 
-        ${link.status === 'inactive' ? 'opacity-60 bg-muted/50' : ''}`}
+      className={cn(
+        "flex items-center justify-between p-3 rounded-md border mb-2 bg-background transition-all ease-in-out duration-200 touch-none",
+        isDragging ? "scale-[1.02] shadow-xl ring-2 ring-primary border-primary bg-accent/5" : "border-transparent",
+        isSorting ? "transform-gpu" : "",
+        link.status === 'inactive' ? 'opacity-60 bg-muted/50' : ''
+      )}
     >
       <div className="flex items-center gap-3 flex-1">
         <DragHandleDots2Icon 
-          className="h-4 w-4 text-muted-foreground cursor-move flex-shrink-0" 
+          className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-grab active:cursor-grabbing flex-shrink-0" 
           {...attributes} 
           {...listeners}
         />
@@ -514,7 +554,7 @@ function SortableLink({ link, blockId, blocks, onDelete, onEdit }: {
       </div>
     </div>
   );
-}
+};
 
 function SortableBlock({ 
   block,
@@ -540,33 +580,49 @@ function SortableBlock({
     transform,
     transition,
     isDragging,
+    isSorting,
   } = useSortable({ 
     id: block.id,
     data: {
       type: 'block',
       block,
-    }
+    },
+    transition: {
+      duration: 200,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
+    transition: transition || undefined,
+    zIndex: isDragging ? 1 : undefined,
+    position: isDragging ? 'relative' : undefined,
+    opacity: isDragging ? 0.8 : 1,
+  } as const;
 
   return (
     <Card 
       ref={setNodeRef}
       style={style}
-      className={`mb-6 ${isDragging ? 'shadow-lg' : ''}`}
+      className={cn(
+        "mb-6 transition-all ease-in-out duration-200 touch-none",
+        isDragging ? "scale-[1.02] shadow-xl ring-2 ring-primary bg-accent/5" : "",
+        isSorting ? "transform-gpu" : "",
+        block.isEnabled ? "opacity-100" : "opacity-60"
+      )}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center space-x-2" {...attributes} {...listeners}>
-          <DragHandleDots2Icon className="h-5 w-5 text-muted-foreground cursor-move" />
+        <div 
+          className="flex items-center space-x-2 select-none touch-none" 
+          {...attributes} 
+          {...listeners}
+        >
+          <DragHandleDots2Icon className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors cursor-grab active:cursor-grabbing" />
           <CardTitle className="text-base font-medium">{block.name}</CardTitle>
         </div>
         <div className="flex items-center gap-3">
-          <AddLinkDialog blockId={block.id} blockName={block.name} onAdd={(blockId, name, type, url, pdfFile, moduleId) => onAddLink(blockId, name, type, url, pdfFile, moduleId)} />
+          <AddLinkDialog blockId={block.id} blockName={block.name} onAdd={onAddLink} />
           <EditBlockDialog 
             block={block} 
             onEdit={onEditBlock}
@@ -599,7 +655,7 @@ function SortableBlock({
 
 function PhonePreview({ blocks }: { blocks: Block[] }) {
   return (
-    <div className="w-[320px] h-[640px] bg-black rounded-[2.5rem] shadow-xl border border-white/10 fixed top-6 right-6 overflow-hidden">
+    <div className="w-[320px] h-[640px] bg-black rounded-[2.5rem] shadow-xl border border-white/10 sticky top-6 overflow-hidden">
       <div className="absolute inset-[2px] rounded-[2.4rem] overflow-hidden bg-background">
         {/* Status Bar */}
         <div className="relative w-full h-7 bg-background px-4 flex items-center justify-between z-10">
@@ -618,16 +674,16 @@ function PhonePreview({ blocks }: { blocks: Block[] }) {
             </div>
             
             {/* Profile Name */}
-            <h3 className="mt-4 text-xl font-semibold text-foreground">@villa-bakara</h3>
-            <p className="text-sm text-muted-foreground mt-1">Villa Bakara</p>
+            <h3 className="mt-4 text-xl font-semibold text-foreground">@hoteldesdunes</h3>
+            <p className="text-sm text-muted-foreground mt-1">Hotel des Dunes</p>
 
             {/* Social Links */}
             <div className="flex gap-4 mt-4">
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                <Twitter className="w-5 h-5 text-foreground/80" />
+                <Calendar className="w-5 h-5 text-foreground/80" />
               </div>
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                <Github className="w-5 h-5 text-foreground/80" />
+                <Globe className="w-5 h-5 text-foreground/80" />
               </div>
             </div>
 
@@ -660,8 +716,8 @@ function PhonePreview({ blocks }: { blocks: Block[] }) {
   );
 }
 
-// Move LinksPageContent outside of dynamic import
-function LinksPageContent() {
+// Move all component declarations to the top level
+const LinksPageContent = function LinksPageContent() {
   const [blocks, setBlocks] = useState<Block[]>([
     {
       id: 1,
@@ -729,11 +785,19 @@ function LinksPageContent() {
   ]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts
+        delay: 100, // 100ms delay before drag starts
+        tolerance: 5, // Allow 5px movement before canceling if delay not met
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -875,50 +939,76 @@ function LinksPageContent() {
   };
 
   return (
-    <div className="flex gap-6">
-      <div className="flex-1 max-w-[calc(100%-352px)]">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">Links</h1>
-          <AddBlockDialog onAdd={handleAddBlock} />
-        </div>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={blocks.map((block) => block.id)}
-            strategy={verticalListSortingStrategy}
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col xl:flex-row gap-6 relative">
+        <div className="flex-1 w-full xl:max-w-[calc(100%-352px)]">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold tracking-tight">Links</h1>
+            <AddBlockDialog onAdd={handleAddBlock} />
+          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[
+              restrictToVerticalAxis,
+              restrictToWindowEdges,
+            ]}
           >
-        <div className="space-y-4">
-          {blocks.map((block) => (
-                <SortableBlock 
-                  key={block.id} 
-                  block={block}
-                  blocks={blocks}
-                  onAddLink={(blockId, name, type, url, pdfFile, moduleId) => handleAddLink(blockId, name, type, url, pdfFile, moduleId)}
-                  onDeleteBlock={() => handleDeleteBlock(block.id)}
-                  onDeleteLink={(linkId) => handleDeleteLink(block.id, linkId)}
-                  onEditBlock={handleEditBlock}
-                  onEditLink={handleEditLink}
-                />
-          ))}
+            <SortableContext
+              items={blocks.map((block) => block.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-4 mb-6 xl:mb-0">
+                {blocks.map((block) => (
+                  <SortableBlock 
+                    key={block.id} 
+                    block={block}
+                    blocks={blocks}
+                    onAddLink={(blockId, name, type, url, pdfFile, moduleId) => handleAddLink(blockId, name, type, url, pdfFile, moduleId)}
+                    onDeleteBlock={() => handleDeleteBlock(block.id)}
+                    onDeleteLink={(linkId) => handleDeleteLink(block.id, linkId)}
+                    onEditBlock={handleEditBlock}
+                    onEditLink={handleEditLink}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         </div>
-          </SortableContext>
-        </DndContext>
+        <div className="hidden xl:block">
+          <PhonePreview blocks={blocks} />
+        </div>
+        <div className="fixed bottom-6 inset-x-0 flex justify-center">
+          <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                className="rounded-full shadow-lg bg-background xl:hidden px-6"
+              >
+                Preview
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-screen p-0">
+              <VisuallyHidden asChild>
+                <SheetTitle>Mobile Preview</SheetTitle>
+              </VisuallyHidden>
+              <div className="h-full overflow-y-auto flex items-center justify-center py-6">
+                <PhonePreview blocks={blocks} />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
-      <PhonePreview blocks={blocks} />
     </div>
   );
-}
+};
 
-// Create the dynamic component with proper type annotations
 const DynamicLinksPageContent = dynamic<Record<string, never>>(() => 
   Promise.resolve(LinksPageContent), 
   { ssr: false }
 );
 
-// Main component that renders the client-only content
 export default function LinksPage() {
   return (
     <Suspense fallback={
@@ -931,7 +1021,7 @@ export default function LinksPage() {
   );
 }
 
-function LinkTypeSelector({ value, onValueChange }: { 
+const LinkTypeSelector = function LinkTypeSelector({ value, onValueChange }: { 
   value: LinkType; 
   onValueChange: (value: LinkType) => void;
 }) {
@@ -994,9 +1084,9 @@ function LinkTypeSelector({ value, onValueChange }: {
       </div>
     </RadioGroup>
   );
-}
+};
 
-function ExternalLinkInput({ value, onChange }: { 
+const ExternalLinkInput = function ExternalLinkInput({ value, onChange }: { 
   value?: string; 
   onChange: (url: string) => void;
 }) {
@@ -1012,9 +1102,9 @@ function ExternalLinkInput({ value, onChange }: {
       />
     </div>
   );
-}
+};
 
-function PdfUploadInput({ onChange }: { 
+const PdfUploadInput = function PdfUploadInput({ onChange }: { 
   onChange: (file: File) => void;
 }) {
   const [fileName, setFileName] = useState<string>('');
@@ -1055,9 +1145,9 @@ function PdfUploadInput({ onChange }: {
       )}
     </div>
   );
-}
+};
 
-function ModuleSelector({ value, onChange }: { 
+const ModuleSelector = function ModuleSelector({ value, onChange }: { 
   value?: string; 
   onChange: (moduleId: string) => void;
 }) {
@@ -1065,14 +1155,18 @@ function ModuleSelector({ value, onChange }: {
     <div className="grid gap-2">
       <Label htmlFor="module">Select Module</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger className="w-full">
           <SelectValue placeholder="Select a module" />
         </SelectTrigger>
         <SelectContent>
           {AVAILABLE_MODULES.map((module) => (
-            <SelectItem key={module.id} value={module.id}>
-              <div className="flex flex-col">
-                <span>{module.name}</span>
+            <SelectItem 
+              key={module.id} 
+              value={module.id}
+              className="py-3"
+            >
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">{module.name}</span>
                 <span className="text-xs text-muted-foreground">
                   {module.description}
                 </span>
@@ -1081,6 +1175,11 @@ function ModuleSelector({ value, onChange }: {
           ))}
         </SelectContent>
       </Select>
+      {value && (
+        <p className="text-sm text-muted-foreground">
+          {AVAILABLE_MODULES.find(m => m.id === value)?.description}
+        </p>
+      )}
     </div>
   );
-} 
+}; 

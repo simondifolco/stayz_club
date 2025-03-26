@@ -15,9 +15,9 @@ export function Navbar() {
         <div className="flex gap-5 items-center font-semibold text-2xl">
           <Link 
             href="/" 
-            className="text-3xl font-geist bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:from-primary/90 hover:to-primary transition-colors"
+            className="text-3xl font-geist bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:from-primary/90 hover:to-primary transition-colors uppercase tracking-tighter font-black"
           >
-            mHotel
+            stayz<span className=" font-extralight lowercase"> .club</span>
           </Link>
         </div>
         {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}

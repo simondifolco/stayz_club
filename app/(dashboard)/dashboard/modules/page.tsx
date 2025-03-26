@@ -35,11 +35,11 @@ const MODULES = [
     path: "/dashboard/modules/tickets"
   },
   {
-    id: "rental",
+    id: "rentals",
     name: "Rentals",
     description: "Rental equipment for leisure use",
     icon: Car,
-    path: "/dashboard/modules/rental"
+    path: "/dashboard/modules/rentals"
   },
   {
     id: "transfers",
