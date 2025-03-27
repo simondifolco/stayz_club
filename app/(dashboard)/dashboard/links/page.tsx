@@ -976,7 +976,7 @@ const LinksPageContent = function LinksPageContent() {
             </SortableContext>
           </DndContext>
         </div>
-        <div className="hidden xl:block">
+        <div className="hidden mt-10 xl:block">
           <PhonePreview blocks={blocks} />
         </div>
         <div className="fixed bottom-6 inset-x-0 flex justify-center">
