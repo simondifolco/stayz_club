@@ -215,9 +215,9 @@ export function DashboardNav() {
       {/* Desktop Navigation */}
       <nav className="hidden lg:flex w-[240px] border-r flex-col h-screen fixed top-0 left-0 z-30 bg-background">
         <div className="flex flex-col flex-1 gap-2 p-2">
+          <HotelSelector />
           <NavLinks />
           <div className="mt-auto">
-            <HotelSelector />
             <UserSection />
           </div>
         </div>
@@ -234,9 +234,9 @@ export function DashboardNav() {
           </SheetTrigger>
           <SheetContent side="left" className="w-[240px] p-2">
             <div className="flex flex-col h-full gap-2">
+              <HotelSelector />
               <NavLinks onSelect={() => setOpen(false)} />
               <div className="mt-auto">
-                <HotelSelector />
                 <UserSection />
               </div>
             </div>
