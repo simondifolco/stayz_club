@@ -80,28 +80,6 @@ Using cutting-edge technology for optimal performance:
 - **Secure**: Enterprise-grade security with Supabase
 - **Scalable**: Cloud-native architecture
 
-## 🎯 Quick Start
-
-Get up and running in minutes:
-
-1. **Clone & Install**
-```bash
-git clone https://github.com/yourusername/hotel-link-in-bio.git
-cd hotel-link-in-bio
-npm install
-```
-
-2. **Configure**
-```bash
-cp .env.example .env.local
-# Add your Supabase credentials
-```
-
-3. **Launch**
-```bash
-npm run dev
-```
-
 ## 📱 See It In Action
 
 <div align="center">
