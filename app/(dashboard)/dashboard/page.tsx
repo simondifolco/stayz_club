@@ -11,6 +11,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Plus,
+  Code,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -83,6 +84,18 @@ export default async function DashboardPage() {
 
   if (!user) {
     return redirect("/sign-in");
+  }
+
+  // Fetch hotel data
+  const { data: hotels, error: hotelsError } = await supabase
+    .from('hotels')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+
+  if (hotelsError) {
+    console.error('Error fetching hotels:', hotelsError);
   }
 
   return (
@@ -170,6 +183,26 @@ export default async function DashboardPage() {
               </Badge>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      {/* Hotel Data JSON */}
+      <Card className="backdrop-blur-sm bg-card/50">
+        <CardHeader className="border-b p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Code className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg font-medium">Hotel Data</CardTitle>
+            </div>
+            <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
+              Refresh
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <pre className="bg-muted/50 p-4 rounded-lg overflow-auto max-h-[400px] text-sm">
+            {JSON.stringify(hotels, null, 2)}
+          </pre>
         </CardContent>
       </Card>
     </div>

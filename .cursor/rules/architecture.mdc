@@ -23,7 +23,7 @@ Feel free to make this architecture evolves along the project
     - **`/settings/page.tsx`**: Settings page.
     - **`/analytics/page.tsx`**: Analytics page for module performance.
     - **`/integrations/page.tsx`**: Manage third-party integrations.
-    - **`/modules/page.tsx`**: Manage and configure modules.
+    - **`/modules/page.tsx`**: Manage and configure modules that allow hotels to create activities, wellness, dining, tickets, rentals and transfers.
     - **`/modules/[id]/page.tsx`**: Edit individual module.
   - **`/links`**: Dynamic routes for public links. [public-links.mdc](mdc:.cursor/rules/public-links.mdc)
     - **`/[id]/page.tsx`**: Individual link page displaying modules.

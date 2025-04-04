@@ -18,6 +18,12 @@ const config = {
   		}
   	},
   	extend: {
+  		fontFamily: {
+  			geist: ['var(--font-geist)', 'system-ui', 'sans-serif'],
+  			inter: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+  			manrope: ['var(--font-manrope)', 'system-ui', 'sans-serif'],
+  			montserrat: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
+  		},
   		colors: {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',

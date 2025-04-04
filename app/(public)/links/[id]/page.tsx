@@ -1,10 +1,9 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Calendar, MessageSquare, ChevronRight } from "lucide-react";
+import { Bell, Calendar, MessageSquare, Share2, ChevronRight } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { cn } from "@/lib/utils";
-import { CornerActions } from "./components";
 
 interface LinkPageProps {
   params: Promise<{
@@ -19,8 +18,8 @@ async function getLinkData(id: string) {
     id,
     hotelName: "Hotel des Dunes",
     username: "@hoteldesdunes",
-    logo: `https://picsum.photos//400/400`,
-    description: "Experience luxury and comfort in the heart of the city",
+    profileImage: `https://picsum.photos/400/400`,
+    description: "Experience luxury and comfort",
     bookingUrl: "https://booking.com/hoteldesdunes",
     chatUrl: "https://wa.me/1234567890",
     links: [
@@ -67,7 +66,7 @@ export async function generateMetadata({ params }: LinkPageProps): Promise<Metad
       type: "website",
       images: [
         {
-          url: data.logo,
+          url: data.profileImage,
           width: 800,
           height: 800,
           alt: data.hotelName
@@ -77,33 +76,41 @@ export async function generateMetadata({ params }: LinkPageProps): Promise<Metad
   };
 }
 
-function LinkDisplay({ data }: { data: Awaited<ReturnType<typeof getLinkData>> }) {
+export default async function LinkPage({ params }: LinkPageProps) {
+  const resolvedParams = await params;
+  const data = await getLinkData(resolvedParams.id);
+
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#0a0a0a] px-4 py-8">
-      <div className="max-w-[420px] mx-auto relative">
-        {/* Corner Actions - Now client-side interactive */}
-        <Suspense fallback={null}>
-          <CornerActions data={data} />
-        </Suspense>
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#0a0a0a]">
+      <div className="max-w-[420px] mx-auto px-4 py-8">
+        {/* Header Actions */}
+        <div className="flex justify-between items-center mb-8">
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-[#1a1a1a] hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-200">
+            <Bell className="h-5 w-5 text-foreground" />
+          </button>
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-[#1a1a1a] hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-200">
+            <Share2 className="h-5 w-5 text-foreground" />
+          </button>
+        </div>
 
         {/* Profile Section */}
-        <div className="flex flex-col items-center">
-          <div className="w-[88px] h-[88px] rounded-full overflow-hidden mb-5">
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-24 h-24 rounded-full overflow-hidden mb-4">
             <img 
-              src={data.logo} 
+              src={data.profileImage} 
               alt={data.hotelName}
               className="w-full h-full object-cover"
             />
           </div>
-          <h1 className="text-xl font-semibold text-foreground">
+          <h1 className="text-xl font-semibold text-foreground mb-1">
             {data.username}
           </h1>
-          <p className="text-[15px] text-muted-foreground mb-8">
+          <p className="text-[15px] text-muted-foreground mb-6">
             {data.hotelName}
           </p>
 
           {/* Primary Actions */}
-          <div className="flex justify-center gap-6 w-full mb-8">
+          <div className="flex justify-center gap-6 w-full">
             <a 
               href={data.bookingUrl} 
               target="_blank" 
@@ -124,7 +131,7 @@ function LinkDisplay({ data }: { data: Awaited<ReturnType<typeof getLinkData>> }
         </div>
 
         {/* Links */}
-        <div className="space-y-[10px]">
+        <div className="space-y-3">
           {data.links.map((link) => (
             <a
               key={link.id}
@@ -148,22 +155,13 @@ function LinkDisplay({ data }: { data: Awaited<ReturnType<typeof getLinkData>> }
           ))}
         </div>
 
+        {/* Powered By */}
+        <div className="mt-12 text-center">
+          <p className="text-sm text-muted-foreground">
+            Powered by <span className="font-medium">STAYZ.club</span>
+          </p>
+        </div>
       </div>
     </div>
-  );
-}
-
-export default async function LinkPage({ params }: LinkPageProps) {
-  const resolvedParams = await params;
-  const data = await getLinkData(resolvedParams.id);
-
-  if (!data) {
-    notFound();
-  }
-
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <LinkDisplay data={data} />
-    </Suspense>
   );
 } 

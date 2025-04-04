@@ -65,7 +65,7 @@ export function LinkTypeSelector({ value, onValueChange }: LinkTypeSelectorProps
           )}
         >
           <Blocks className="mb-2 h-6 w-6" />
-          <span className="text-sm font-medium">Interactive Module</span>
+          <span className="text-sm font-medium">Module</span>
         </label>
       </div>
     </RadioGroup>

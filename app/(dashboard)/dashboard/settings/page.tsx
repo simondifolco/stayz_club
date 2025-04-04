@@ -115,30 +115,45 @@ export default function UserSettings() {
   }, [selectedHotel?.id, profileForm, userForm, supabase]);
 
   async function onSubmitProfile(data: ProfileFormValues) {
-    if (!selectedHotel) return;
+    if (!selectedHotel?.id) {
+      toast.error("No hotel selected");
+      return;
+    }
 
     setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from("hotels")
-        .update({
-          name: data.name,
-          description: data.description,
-          logo_url: data.logo_url || null,
-        })
-        .eq("id", selectedHotel.id);
+      const updateData = {
+        name: data.name,
+        description: data.description || null,
+        logo_url: data.logo_url || null,
+        updated_at: new Date().toISOString(),
+      };
 
-      if (error) throw error;
+      const { data: updatedHotel, error } = await supabase
+        .from("hotels")
+        .update(updateData)
+        .eq("id", selectedHotel.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Supabase error:", error);
+        throw new Error(error.message);
+      }
+
+      if (!updatedHotel) {
+        throw new Error("Failed to update hotel profile");
+      }
 
       setSelectedHotel({
         ...selectedHotel,
-        ...data,
+        ...updatedHotel,
       });
 
       toast.success("Hotel profile updated successfully");
     } catch (error) {
       console.error("Error updating hotel profile:", error);
-      toast.error("Failed to update hotel profile");
+      toast.error(error instanceof Error ? error.message : "Failed to update hotel profile");
     } finally {
       setIsLoading(false);
     }

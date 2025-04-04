@@ -12,7 +12,7 @@ The dashboard is the central hub for hotel owners to manage their bio links, con
 ### Features
 
 - **Link Management**: Create, edit, and delete bio links.
-- **modules Management**: Configure and manage modules displayed on bio links.
+- **Modules Management**: Configure and manage modules to manage activities, wellness, dining, tickets, rentals and transfers.
 - **Analytics**: View detailed analytics on link views, modules interactions, and user engagement.
 - **Customization**: Customize the appearance of bio links with themes and styles.
 - **Integrations**: Manage integrations with booking platforms and social media.

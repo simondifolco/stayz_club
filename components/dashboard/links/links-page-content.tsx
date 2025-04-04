@@ -1,9 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useState, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
@@ -15,13 +12,16 @@ import {
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Block, Link, LinkType } from "./types";
+import { Block, Link, LinkType, ModuleType } from "./types";
 import { SortableBlock } from "./sortable-block";
 import { AddBlockDialog } from "./add-block-dialog";
-import { PhonePreview } from "./phone-preview";
-import { ThemeSettingsDialog } from "@/components/dashboard/theme-settings-dialog";
 
-export function LinksPageContent() {
+interface LinksPageContentProps {
+  onBlocksChange: (blocks: Block[]) => void;
+}
+
+export function LinksPageContent({ onBlocksChange }: LinksPageContentProps) {
+  const [mounted, setMounted] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([
     {
       id: 1,
@@ -66,42 +66,30 @@ export function LinksPageContent() {
           type: "pdf"
         }
       ]
-    },
-    {
-      id: 3,
-      name: "Modules",
-      isEnabled: true,
-      links: [
-        {
-          id: 6,
-          name: "Spa Booking",
-          status: "active",
-          type: "module"
-        },
-        {
-          id: 7,
-          name: "Concierge Services",
-          status: "active",
-          type: "module"
-        }
-      ]
     }
   ]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Call onBlocksChange whenever blocks change
+  useEffect(() => {
+    onBlocksChange(blocks);
+  }, [blocks, onBlocksChange]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // Reduced from 8px to 5px for quicker activation
-        delay: 50, // Reduced from 100ms to 50ms for quicker response
-        tolerance: 8, // Increased from 5px to 8px for better tolerance
+        distance: 5,
+        delay: 50,
+        tolerance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-  const [previewOpen, setPreviewOpen] = useState(false);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -161,7 +149,7 @@ export function LinksPageContent() {
     setBlocks([...blocks, newBlock]);
   };
 
-  const handleAddLink = (blockId: number, name: string, type: LinkType, url?: string, pdfFile?: File, moduleId?: string) => {
+  const handleAddLink = (blockId: number, name: string, type: LinkType, url?: string, pdfFile?: File, moduleType?: ModuleType) => {
     setBlocks(blocks.map(block => {
       if (block.id === blockId) {
         const newLink: Link = {
@@ -171,7 +159,7 @@ export function LinksPageContent() {
           type,
           url,
           pdfFile,
-          moduleId
+          moduleType
         };
         return {
           ...block,
@@ -204,7 +192,7 @@ export function LinksPageContent() {
     ));
   };
 
-  const handleEditLink = (blockId: number, targetBlockId: number, linkId: number, name: string, status: Link['status'], type: LinkType, url?: string, pdfFile?: File, moduleId?: string) => {
+  const handleEditLink = (blockId: number, targetBlockId: number, linkId: number, name: string, status: Link['status'], type: LinkType, url?: string, pdfFile?: File, moduleType?: ModuleType) => {
     setBlocks(blocks.map(block => {
       if (block.id === blockId) {
         // If we're just toggling status (same block), update the link in place
@@ -213,7 +201,7 @@ export function LinksPageContent() {
             ...block,
             links: block.links.map(link => 
               link.id === linkId 
-                ? { ...link, name, status, type, url, pdfFile, moduleId }
+                ? { ...link, name, status, type, url, pdfFile, moduleType }
                 : link
             )
           };
@@ -231,7 +219,7 @@ export function LinksPageContent() {
           ?.links.find(l => l.id === linkId);
         
         if (linkToMove) {
-          const updatedLink = { ...linkToMove, name, status, type, url, pdfFile, moduleId };
+          const updatedLink = { ...linkToMove, name, status, type, url, pdfFile, moduleType };
           return {
             ...block,
             links: [...block.links, updatedLink]
@@ -242,71 +230,52 @@ export function LinksPageContent() {
     }));
   };
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col xl:flex-row gap-6 relative">
-        <div className="flex-1 w-full xl:max-w-[calc(100%-352px)]">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold tracking-tight">Links</h1>
-            <div className="flex items-center gap-2">
-              <ThemeSettingsDialog />
-              <AddBlockDialog onAdd={handleAddBlock} />
-            </div>
-          </div>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            modifiers={[
-              restrictToVerticalAxis,
-              restrictToWindowEdges,
-            ]}
-          >
-            <SortableContext
-              items={blocks.map((block) => block.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-4 mb-6 xl:mb-0">
-                {blocks.map((block) => (
-                  <SortableBlock 
-                    key={block.id} 
-                    block={block}
-                    blocks={blocks}
-                    onAddLink={handleAddLink}
-                    onDeleteBlock={() => handleDeleteBlock(block.id)}
-                    onDeleteLink={(linkId) => handleDeleteLink(block.id, linkId)}
-                    onEditBlock={handleEditBlock}
-                    onEditLink={handleEditLink}
-                  />
+  if (!mounted) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="animate-pulse space-y-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="rounded-lg border p-6 space-y-4">
+              <div className="h-6 w-32 bg-muted rounded" />
+              <div className="space-y-2">
+                {[1, 2, 3].map((j) => (
+                  <div key={j} className="h-12 bg-muted rounded" />
                 ))}
               </div>
-            </SortableContext>
-          </DndContext>
-        </div>
-        <div className="hidden mt-10 xl:block">
-          <PhonePreview blocks={blocks} />
-        </div>
-        <div className="fixed bottom-6 inset-x-0 flex justify-center">
-          <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                className="rounded-full shadow-lg bg-background xl:hidden px-6"
-              >
-                Preview
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="h-screen p-0">
-              <VisuallyHidden asChild>
-                <SheetTitle>Mobile Preview</SheetTitle>
-              </VisuallyHidden>
-              <div className="h-full overflow-y-auto flex items-center justify-center py-6">
-                <PhonePreview blocks={blocks} />
-              </div>
-            </SheetContent>
-          </Sheet>
+            </div>
+          ))}
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+      >
+        <SortableContext
+          items={blocks.map(block => block.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {blocks.map((block) => (
+            <SortableBlock
+              key={block.id}
+              block={block}
+              blocks={blocks}
+              onAddLink={handleAddLink}
+              onDeleteBlock={() => handleDeleteBlock(block.id)}
+              onDeleteLink={(linkId) => handleDeleteLink(block.id, linkId)}
+              onEditBlock={handleEditBlock}
+              onEditLink={handleEditLink}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
+      <AddBlockDialog onAdd={handleAddBlock} />
     </div>
   );
 } 

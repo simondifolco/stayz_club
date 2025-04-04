@@ -12,7 +12,7 @@ The hotel link in bio platform aims to provide a seamless way for hotels to shar
 ### Features
 
 - **Customizable Links**: Users can create and customize their bio links with various themes and styles.
-- **Modules Management**: Configure and display modules on bio links.
+- **Modules Management**: Hotel will be able to use modules in their [dashboard.mdc](mdc:.cursor/rules/dashboard.mdc) to create activities, wellness, dining, tickets, rentals and transfers booking experiences to showcase with l.
 - **Analytics Dashboard**: Track link views, modules interactions, and user engagement.
 - **Integrations**: Integrate with popular booking platforms and social media.
 - **Responsive Design**: Ensure the platform is accessible on all devices.
@@ -21,7 +21,7 @@ The hotel link in bio platform aims to provide a seamless way for hotels to shar
 ### User Roles
 
 - **Admin**: Manage users, monitor platform usage, and configure settings.
-- **Hotel Owner**: Create and manage bio links, view analytics, and customize themes.
+- **Hotel Owner**: Create and manage bio links, view analytics, and customize themes and use modules (activities, wellness, dining, tickets, rentals and transfers) to create booking experiences.
 - **Guest**: View and interact with bio links.
 
 ### Tech Stack

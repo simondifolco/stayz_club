@@ -16,6 +16,7 @@ import {
   X,
   Plus,
   ChevronDown,
+  Palette,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
@@ -31,8 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AddHotelDialog } from "@/components/dashboard/add-hotel-dialog";
+import { AddHotelDialog } from "./add-hotel-dialog";
 import { useHotel } from "@/contexts/hotel-context";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,6 +62,11 @@ const links = [
     title: "Analytics",
     href: "/dashboard/analytics",
     icon: BarChart,
+  },
+  {
+    title: "Theme",
+    href: "/dashboard/theme",
+    icon: Palette,
   },
   {
     title: "Team",
@@ -110,9 +117,23 @@ function NavLinks({ className, onSelect }: { className?: string; onSelect?: () =
 
 function HotelSelector() {
   const { hotels, selectedHotel, setSelectedHotel, addHotel } = useHotel();
+  const { toast } = useToast();
 
   const handleAddHotel = async (hotelData: { name: string; slug: string }) => {
-    await addHotel(hotelData);
+    try {
+      await addHotel(hotelData);
+      toast({
+        title: "Success",
+        description: "Hotel created successfully",
+      });
+    } catch (error: any) {
+      console.error("Error creating hotel:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create hotel",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

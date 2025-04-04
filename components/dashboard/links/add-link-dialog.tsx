@@ -14,16 +14,16 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LinkType } from "./types";
+import { LinkType, ModuleType } from "./types";
 import { LinkTypeSelector } from "./link-type-selector";
 import { ExternalLinkInput } from "./external-link-input";
 import { PdfUploadInput } from "./pdf-upload-input";
-import { ModuleSelector } from "./module-selector";
+import { ModuleTypeSelector } from "./module-type-selector";
 
 interface AddLinkDialogProps {
   blockId: number;
   blockName: string;
-  onAdd: (blockId: number, name: string, type: LinkType, url?: string, pdfFile?: File, moduleId?: string) => void;
+  onAdd: (blockId: number, name: string, type: LinkType, url?: string, pdfFile?: File, moduleType?: ModuleType) => void;
 }
 
 export function AddLinkDialog({ blockId, blockName, onAdd }: AddLinkDialogProps) {
@@ -31,16 +31,16 @@ export function AddLinkDialog({ blockId, blockName, onAdd }: AddLinkDialogProps)
   const [type, setType] = useState<LinkType>("external");
   const [url, setUrl] = useState<string>("");
   const [pdfFile, setPdfFile] = useState<File | undefined>();
-  const [moduleId, setModuleId] = useState<string>("");
+  const [moduleType, setModuleType] = useState<ModuleType | undefined>();
   const [open, setOpen] = useState(false);
 
   const handleAdd = () => {
     if (name.trim()) {
-      onAdd(blockId, name, type, url, pdfFile, moduleId);
+      onAdd(blockId, name, type, url, pdfFile, moduleType);
       setName("");
       setUrl("");
       setPdfFile(undefined);
-      setModuleId("");
+      setModuleType(undefined);
       setOpen(false);
     }
   };
@@ -53,7 +53,7 @@ export function AddLinkDialog({ blockId, blockName, onAdd }: AddLinkDialogProps)
       case 'pdf':
         return !!pdfFile;
       case 'module':
-        return !!moduleId;
+        return !!moduleType;
       default:
         return false;
     }
@@ -71,7 +71,7 @@ export function AddLinkDialog({ blockId, blockName, onAdd }: AddLinkDialogProps)
         <DialogHeader>
           <DialogTitle>Add Link to {blockName}</DialogTitle>
           <DialogDescription>
-            Choose the type of link you want to add. Modules are interactive components, external links point to other websites, and PDFs are downloadable documents.
+            Choose the type of link you want to add. External links point to other websites, PDFs are downloadable documents, and modules are interactive features.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -95,7 +95,10 @@ export function AddLinkDialog({ blockId, blockName, onAdd }: AddLinkDialogProps)
             <PdfUploadInput onChange={setPdfFile} />
           )}
           {type === 'module' && (
-            <ModuleSelector value={moduleId} onChange={setModuleId} />
+            <div className="grid gap-2">
+              <Label>Module Type</Label>
+              <ModuleTypeSelector value={moduleType} onChange={setModuleType} />
+            </div>
           )}
         </div>
         <DialogFooter>

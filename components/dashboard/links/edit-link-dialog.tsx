@@ -21,17 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Link, LinkType, Block } from "./types";
+import { Link, LinkType, ModuleType, Block } from "./types";
 import { LinkTypeSelector } from "./link-type-selector";
 import { ExternalLinkInput } from "./external-link-input";
 import { PdfUploadInput } from "./pdf-upload-input";
-import { ModuleSelector } from "./module-selector";
+import { ModuleTypeSelector } from "./module-type-selector";
 
 interface EditLinkDialogProps {
   link: Link;
   blockId: number;
   blocks: Block[];
-  onEdit: (blockId: number, targetBlockId: number, linkId: number, name: string, status: Link['status'], type: LinkType, url?: string, pdfFile?: File, moduleId?: string) => void;
+  onEdit: (blockId: number, targetBlockId: number, linkId: number, name: string, status: Link['status'], type: LinkType, url?: string, pdfFile?: File, moduleType?: ModuleType) => void;
   onDelete: () => void;
 }
 
@@ -47,12 +47,12 @@ export function EditLinkDialog({
   const [type, setType] = useState<LinkType>(link.type);
   const [url, setUrl] = useState<string>(link.url || "");
   const [pdfFile, setPdfFile] = useState<File | undefined>(link.pdfFile);
-  const [moduleId, setModuleId] = useState<string>(link.moduleId || "");
+  const [moduleType, setModuleType] = useState<ModuleType | undefined>(link.moduleType);
   const [open, setOpen] = useState(false);
 
   const handleEdit = () => {
     if (name.trim()) {
-      onEdit(blockId, parseInt(selectedBlockId), link.id, name, link.status, type, url, pdfFile, moduleId);
+      onEdit(blockId, parseInt(selectedBlockId), link.id, name, link.status, type, url, pdfFile, moduleType);
       setOpen(false);
     }
   };
@@ -70,7 +70,7 @@ export function EditLinkDialog({
       case 'pdf':
         return !!pdfFile;
       case 'module':
-        return !!moduleId;
+        return !!moduleType;
       default:
         return false;
     }
@@ -87,7 +87,7 @@ export function EditLinkDialog({
         <DialogHeader>
           <DialogTitle>Edit Link</DialogTitle>
           <DialogDescription>
-            Choose the type of link. Modules are interactive components, external links point to other websites, and PDFs are downloadable documents.
+            Choose the type of link. External links point to other websites, PDFs are downloadable documents, and modules are interactive features.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -126,7 +126,10 @@ export function EditLinkDialog({
             <PdfUploadInput onChange={setPdfFile} />
           )}
           {type === 'module' && (
-            <ModuleSelector value={moduleId} onChange={setModuleId} />
+            <div className="grid gap-2">
+              <Label>Module Type</Label>
+              <ModuleTypeSelector value={moduleType} onChange={setModuleType} />
+            </div>
           )}
         </div>
         <DialogFooter className="flex items-center justify-between">

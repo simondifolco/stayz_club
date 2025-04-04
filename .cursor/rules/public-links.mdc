@@ -1,5 +1,5 @@
 ---
-description: Public Links 
+description: Public Links
 globs: 
 alwaysApply: false
 ---
@@ -23,7 +23,7 @@ Public links are the user-facing bio links that hotels share with their audience
 ### Components
 
 - **LinkDisplay**: Display the bio link with customizable themes and configured moduless.
-- **modulesCard**: Display individual moduless with details and booking options.
+- **ModulesCard**: Display individual modules (activities, wellness, dining, tickets, rentals and transfers) with details and booking options.
 - **BookingButton**: Button for users to book a modules.
 - **SocialMediaLinks**: Links to the hotel's social media profiles.
 - **PromotionBanner**: Display promotional offers.

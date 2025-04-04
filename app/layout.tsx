@@ -1,7 +1,11 @@
 import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -16,6 +20,25 @@ export const metadata = {
 const geistSans = Geist({
   display: "swap",
   subsets: ["latin"],
+  variable: '--font-geist',
+});
+
+const inter = Inter({
+  display: "swap",
+  subsets: ["latin"],
+  variable: '--font-inter',
+});
+
+const manrope = Manrope({
+  display: "swap",
+  subsets: ["latin"],
+  variable: '--font-manrope',
+});
+
+const montserrat = Montserrat({
+  display: "swap",
+  subsets: ["latin"],
+  variable: '--font-montserrat',
 });
 
 export default function RootLayout({
@@ -24,7 +47,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geistSans.className} suppressHydrationWarning>
+    <html 
+      lang="en" 
+      className={`${geistSans.variable} ${inter.variable} ${manrope.variable} ${montserrat.variable}`} 
+      suppressHydrationWarning
+    >
       <body className="bg-background text-foreground">
         <ThemeProvider
           attribute="class"
@@ -33,8 +60,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="min-h-screen flex flex-col">
+            <div className="flex-1">
               {children}
+            </div>
           </div>
+          <Toaster />
+          <SonnerToaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>
