@@ -10,35 +10,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface AddBlockDialogProps {
-  onAdd: (name: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdd?: (name: string) => void;
 }
 
-export function AddBlockDialog({ onAdd }: AddBlockDialogProps) {
+export function AddBlockDialog({ open, onOpenChange, onAdd }: AddBlockDialogProps) {
   const [name, setName] = useState("");
-  const [open, setOpen] = useState(false);
 
   const handleAdd = () => {
-    if (name.trim()) {
+    if (name.trim() && onAdd) {
       onAdd(name);
       setName("");
-      setOpen(false);
+      onOpenChange(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Block
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Block</DialogTitle>

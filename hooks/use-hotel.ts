@@ -4,37 +4,40 @@ import { useEffect, useState } from "react";
 interface Hotel {
   id: string;
   name: string;
+  created_at: string;
+  updated_at: string;
   // Add other hotel fields as needed
 }
 
 export function useHotel() {
+  const supabase = createClient();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
     async function fetchHotel() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
+        setIsLoading(true);
         const { data, error } = await supabase
-          .from("hotels")
-          .select("*")
-          .eq("user_id", user.id)
+          .from('hotels')
+          .select('*')
           .single();
 
         if (error) throw error;
         setHotel(data);
       } catch (error) {
-        console.error("Error fetching hotel:", error);
+        console.error('Error fetching hotel:', error);
+        setHotel(null);
       } finally {
         setIsLoading(false);
       }
     }
 
     fetchHotel();
-  }, []);
+  }, [supabase]);
 
-  return { hotel, isLoading };
+  return {
+    selectedHotel: hotel,
+    isLoading
+  };
 } 

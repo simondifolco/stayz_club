@@ -14,49 +14,36 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LinkType, ModuleType } from "./types";
-import { LinkTypeSelector } from "./link-type-selector";
-import { ExternalLinkInput } from "./external-link-input";
-import { PdfUploadInput } from "./pdf-upload-input";
-import { ModuleTypeSelector } from "./module-type-selector";
+import { Textarea } from "@/components/ui/textarea";
 
 interface AddLinkDialogProps {
   blockId: number;
   blockName: string;
-  onAdd: (blockId: number, name: string, type: LinkType, url?: string, pdfFile?: File, moduleType?: ModuleType) => void;
+  onAdd: (blockId: number, name: string, description: string, type: 'external' | 'pdf', url?: string, pdfUrl?: string) => void;
 }
 
 export function AddLinkDialog({ blockId, blockName, onAdd }: AddLinkDialogProps) {
   const [name, setName] = useState("");
-  const [type, setType] = useState<LinkType>("external");
-  const [url, setUrl] = useState<string>("");
-  const [pdfFile, setPdfFile] = useState<File | undefined>();
-  const [moduleType, setModuleType] = useState<ModuleType | undefined>();
+  const [description, setDescription] = useState("");
+  const [type, setType] = useState<'external' | 'pdf'>('external');
+  const [url, setUrl] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleAdd = () => {
-    if (name.trim()) {
-      onAdd(blockId, name, type, url, pdfFile, moduleType);
+    if (name.trim() && description.trim()) {
+      onAdd(blockId, name, description, type, type === 'external' ? url : undefined, type === 'pdf' ? pdfUrl : undefined);
       setName("");
+      setDescription("");
       setUrl("");
-      setPdfFile(undefined);
-      setModuleType(undefined);
+      setPdfUrl("");
       setOpen(false);
     }
   };
 
   const isValid = () => {
-    if (!name.trim()) return false;
-    switch (type) {
-      case 'external':
-        return !!url.trim();
-      case 'pdf':
-        return !!pdfFile;
-      case 'module':
-        return !!moduleType;
-      default:
-        return false;
-    }
+    if (!name.trim() || !description.trim()) return false;
+    return type === 'external' ? !!url.trim() : !!pdfUrl.trim();
   };
 
   return (
@@ -71,7 +58,7 @@ export function AddLinkDialog({ blockId, blockName, onAdd }: AddLinkDialogProps)
         <DialogHeader>
           <DialogTitle>Add Link to {blockName}</DialogTitle>
           <DialogDescription>
-            Choose the type of link you want to add. External links point to other websites, PDFs are downloadable documents, and modules are interactive features.
+            Add a link to your block. External links point to other websites, while PDFs are downloadable documents.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -85,19 +72,55 @@ export function AddLinkDialog({ blockId, blockName, onAdd }: AddLinkDialogProps)
             />
           </div>
           <div className="grid gap-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter a brief description"
+            />
+          </div>
+          <div className="grid gap-2">
             <Label>Type</Label>
-            <LinkTypeSelector value={type} onValueChange={setType} />
+            <div className="flex gap-4">
+              <Button
+                type="button"
+                variant={type === 'external' ? 'default' : 'outline'}
+                onClick={() => setType('external')}
+              >
+                External Link
+              </Button>
+              <Button
+                type="button"
+                variant={type === 'pdf' ? 'default' : 'outline'}
+                onClick={() => setType('pdf')}
+              >
+                PDF Document
+              </Button>
+            </div>
           </div>
           {type === 'external' && (
-            <ExternalLinkInput value={url} onChange={setUrl} />
+            <div className="grid gap-2">
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
           )}
           {type === 'pdf' && (
-            <PdfUploadInput onChange={setPdfFile} />
-          )}
-          {type === 'module' && (
             <div className="grid gap-2">
-              <Label>Module Type</Label>
-              <ModuleTypeSelector value={moduleType} onChange={setModuleType} />
+              <Label htmlFor="pdfUrl">PDF URL</Label>
+              <Input
+                id="pdfUrl"
+                type="url"
+                value={pdfUrl}
+                onChange={(e) => setPdfUrl(e.target.value)}
+                placeholder="https://..."
+              />
             </div>
           )}
         </div>

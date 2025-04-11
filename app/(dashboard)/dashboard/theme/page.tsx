@@ -38,6 +38,7 @@ import { ProfileDialogs } from "@/components/dashboard/profile/profile-dialogs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { useHotelItems } from "@/hooks/use-hotel-items";
 
 const BUTTON_STYLES = {
   minimal: "Minimal",
@@ -58,7 +59,6 @@ const themeFormSchema = z.object({
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Must be a valid hex color"),
   secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Must be a valid hex color"),
   backgroundColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Must be a valid hex color"),
-  darkMode: z.boolean(),
   showLogo: z.boolean(),
   buttonStyle: z.enum(["minimal", "outline", "solid", "soft"]),
   font: z.enum(["geist", "inter", "manrope", "montserrat"]),
@@ -70,7 +70,6 @@ const defaultTheme: ThemeFormValues = {
   primaryColor: "#000000",
   secondaryColor: "#ffffff",
   backgroundColor: "#ffffff",
-  darkMode: false,
   showLogo: true,
   buttonStyle: "minimal",
   font: "geist",
@@ -80,6 +79,7 @@ export default function ThemeSettings() {
   const { selectedHotel, setSelectedHotel } = useHotel();
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
+  const { blocks } = useHotelItems();
 
   const form = useForm<ThemeFormValues>({
     resolver: zodResolver(themeFormSchema),
@@ -249,27 +249,6 @@ export default function ThemeSettings() {
                           </FormItem>
                         )}
                       />
-
-                      <FormField
-                        control={form.control}
-                        name="darkMode"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-base">Dark Mode</FormLabel>
-                              <FormDescription>
-                                Enable dark mode for your profile.
-                              </FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
                     </TabsContent>
 
                     <TabsContent value="buttons" className="space-y-6">
@@ -433,9 +412,9 @@ export default function ThemeSettings() {
         </div>
       </div>
 
-      {/* Mobile Preview */}
+      {/* Preview */}
       <div className="hidden lg:block">
-        <MobilePreview blocks={[]} />
+        <MobilePreview blocks={blocks} />
       </div>
     </div>
   );

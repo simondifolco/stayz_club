@@ -1,33 +1,65 @@
+"use client";
+
+import { memo, useEffect, useMemo } from "react";
 import { useHotel } from "@/contexts/hotel-context";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Bell, Calendar, MessageSquare, Share2, ChevronRight, Smartphone, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Block } from "./types";
 
-interface MobilePreviewProps {
-  blocks: Array<{
-    id: number;
-    name: string;
-    links: Array<{
-      id: number;
-      name: string;
-      description: string;
-      type: "external" | "pdf";
-      url?: string;
-      pdfUrl?: string;
-    }>;
-  }>;
+interface PreviewContentProps {
+  blocks?: Block[];
 }
 
-export function MobilePreview({ blocks }: MobilePreviewProps) {
+const PreviewContent = memo(function PreviewContent({ blocks = [] }: PreviewContentProps) {
   const { selectedHotel } = useHotel();
   const theme = selectedHotel?.theme;
 
-  const PreviewContent = () => (
+  // Create a stable dependency value for blocks and their sort orders
+  const blocksDependency = useMemo(() => {
+    return JSON.stringify({
+      blocks: blocks?.map(block => ({
+        id: block.id,
+        sort_order: block.sort_order,
+        links: block.links.map(link => ({
+          id: link.id,
+          sort_order: link.sort_order
+        }))
+      }))
+    });
+  }, [blocks]);
+
+  // Force re-render when theme or blocks change
+  useEffect(() => {}, [
+    theme?.font,
+    theme?.primaryColor,
+    theme?.secondaryColor,
+    theme?.showLogo,
+    theme?.bookingUrl,
+    theme?.contactEmail,
+    selectedHotel?.logo_url,
+    selectedHotel?.name,
+    selectedHotel?.description,
+    blocksDependency // Single stable dependency for blocks
+  ]);
+
+  // Sort blocks and links
+  const sortedBlocks = useMemo(() => {
+    return [...(blocks || [])].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  }, [blocks]);
+
+  const blocksWithSortedLinks = useMemo(() => {
+    return sortedBlocks.map(block => ({
+      ...block,
+      links: [...block.links].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+    }));
+  }, [sortedBlocks]);
+
+  return (
     <div 
       className={cn(
         "w-full h-full overflow-y-auto",
-        theme?.darkMode ? "bg-[#0a0a0a] text-white" : "bg-[#fafafa] text-black",
         {
           'font-geist': theme?.font === 'geist',
           'font-inter': theme?.font === 'inter',
@@ -38,26 +70,51 @@ export function MobilePreview({ blocks }: MobilePreviewProps) {
       style={{
         "--theme-primary": theme?.primaryColor || "#000000",
         "--theme-secondary": theme?.secondaryColor || "#ffffff",
+        backgroundColor: theme?.backgroundColor || "#fafafa",
       } as React.CSSProperties}
     >
       <div className="px-4 py-8">
         {/* Header Actions */}
         <div className="flex justify-between items-center mb-8">
           <button className={cn(
-            "w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200",
-            theme?.darkMode 
-              ? "bg-[#1a1a1a] hover:bg-white/5" 
-              : "bg-white hover:bg-black/5"
-          )}>
-            <Bell className="h-5 w-5" style={{ color: 'var(--theme-primary)' }} />
+            "w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 border-2",
+            {
+              // Minimal (ghost) style
+              'bg-transparent hover:bg-primary/10 border-transparent': theme?.buttonStyle === 'minimal',
+              // Outline style
+              'bg-transparent': theme?.buttonStyle === 'outline',
+              // Solid style
+              'bg-primary text-primary-foreground hover:opacity-90 border-transparent': theme?.buttonStyle === 'solid',
+              // Soft style
+              'bg-primary/10 hover:bg-primary/20 border-transparent': theme?.buttonStyle === 'soft',
+              // Default style
+              'bg-white hover:bg-black/5 border-transparent': !theme?.buttonStyle
+            }
+          )}
+          style={{ 
+            borderColor: theme?.buttonStyle === 'outline' ? 'var(--theme-primary)' : 'transparent'
+          }}>
+            <Bell className="h-5 w-5" style={{ color: theme?.buttonStyle === 'solid' ? 'var(--theme-secondary)' : 'var(--theme-primary)' }} />
           </button>
           <button className={cn(
-            "w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200",
-            theme?.darkMode 
-              ? "bg-[#1a1a1a] hover:bg-white/5" 
-              : "bg-white hover:bg-black/5"
-          )}>
-            <Share2 className="h-5 w-5" style={{ color: 'var(--theme-primary)' }} />
+            "w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 border-2",
+            {
+              // Minimal (ghost) style
+              'bg-transparent hover:bg-primary/10 border-transparent': theme?.buttonStyle === 'minimal',
+              // Outline style
+              'bg-transparent': theme?.buttonStyle === 'outline',
+              // Solid style
+              'bg-primary text-primary-foreground hover:opacity-90 border-transparent': theme?.buttonStyle === 'solid',
+              // Soft style
+              'bg-primary/10 hover:bg-primary/20 border-transparent': theme?.buttonStyle === 'soft',
+              // Default style
+              'bg-white hover:bg-black/5 border-transparent': !theme?.buttonStyle
+            }
+          )}
+          style={{ 
+            borderColor: theme?.buttonStyle === 'outline' ? 'var(--theme-primary)' : 'transparent'
+          }}>
+            <Share2 className="h-5 w-5" style={{ color: theme?.buttonStyle === 'solid' ? 'var(--theme-secondary)' : 'var(--theme-primary)' }} />
           </button>
         </div>
 
@@ -95,63 +152,91 @@ export function MobilePreview({ blocks }: MobilePreviewProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "w-[64px] h-[64px] flex items-center justify-center rounded-full transition-all duration-200",
-                  theme?.darkMode 
-                    ? "bg-[#1a1a1a] hover:bg-white/5" 
-                    : "bg-white hover:bg-black/5"
+                  "w-[64px] h-[64px] flex items-center justify-center rounded-full transition-all duration-200 border-2",
+                  {
+                    // Minimal (ghost) style
+                    'bg-transparent hover:bg-primary/10 border-transparent': theme?.buttonStyle === 'minimal',
+                    // Outline style
+                    'bg-transparent': theme?.buttonStyle === 'outline',
+                    // Solid style
+                    'bg-primary text-primary-foreground hover:opacity-90 border-transparent': theme?.buttonStyle === 'solid',
+                    // Soft style
+                    'bg-primary/10 hover:bg-primary/20 border-transparent': theme?.buttonStyle === 'soft',
+                    // Default style
+                    'bg-white hover:bg-black/5 border-transparent': !theme?.buttonStyle
+                  }
                 )}
+                style={{ 
+                  borderColor: theme?.buttonStyle === 'outline' ? 'var(--theme-primary)' : 'transparent'
+                }}
               >
-                <Calendar className="h-6 w-6" style={{ color: 'var(--theme-primary)' }} />
+                <Calendar className="h-6 w-6" style={{ color: theme?.buttonStyle === 'solid' ? 'var(--theme-secondary)' : 'var(--theme-primary)' }} />
               </a>
             )}
             {theme?.contactEmail && (
               <a 
                 href={`mailto:${theme.contactEmail}`}
                 className={cn(
-                  "w-[64px] h-[64px] flex items-center justify-center rounded-full transition-all duration-200",
-                  theme?.darkMode 
-                    ? "bg-[#1a1a1a] hover:bg-white/5" 
-                    : "bg-white hover:bg-black/5"
+                  "w-[64px] h-[64px] flex items-center justify-center rounded-full transition-all duration-200 border-2",
+                  {
+                    // Minimal (ghost) style
+                    'bg-transparent hover:bg-primary/10 border-transparent': theme?.buttonStyle === 'minimal',
+                    // Outline style
+                    'bg-transparent': theme?.buttonStyle === 'outline',
+                    // Solid style
+                    'bg-primary text-primary-foreground hover:opacity-90 border-transparent': theme?.buttonStyle === 'solid',
+                    // Soft style
+                    'bg-primary/10 hover:bg-primary/20 border-transparent': theme?.buttonStyle === 'soft',
+                    // Default style
+                    'bg-white hover:bg-black/5 border-transparent': !theme?.buttonStyle
+                  }
                 )}
+                style={{ 
+                  borderColor: theme?.buttonStyle === 'outline' ? 'var(--theme-primary)' : 'transparent'
+                }}
               >
-                <Mail className="h-6 w-6" style={{ color: 'var(--theme-primary)' }} />
+                <Mail className="h-6 w-6" style={{ color: theme?.buttonStyle === 'solid' ? 'var(--theme-secondary)' : 'var(--theme-primary)' }} />
               </a>
             )}
           </div>
         </div>
 
         {/* Links */}
-        <div className="space-y-3">
-          {blocks.map((block) => (
+        <div className="space-y-6">
+          {blocksWithSortedLinks.map((block) => (
             <div key={block.id} className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground px-1 text-center">{block.title}</h3>
               {block.links.map((link) => (
-                <div
+                <a
                   key={link.id}
+                  href={link.type === 'external' ? link.url : link.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={cn(
-                    "group block w-full p-4 rounded-2xl transition-all duration-200",
-                    theme?.darkMode 
-                      ? "bg-[#1a1a1a] hover:bg-white/5" 
-                      : "bg-white hover:bg-black/5"
+                    "group block w-full p-4 rounded-2xl transition-all duration-200 border-2",
+                    {
+                      // Minimal (ghost) style
+                      'bg-transparent hover:bg-primary/10 border-transparent': theme?.buttonStyle === 'minimal',
+                      // Outline style
+                      'bg-transparent': theme?.buttonStyle === 'outline',
+                      // Solid style
+                      'bg-primary text-primary-foreground hover:opacity-90 border-transparent': theme?.buttonStyle === 'solid',
+                      // Soft style
+                      'bg-primary/10 hover:bg-primary/20 border-transparent': theme?.buttonStyle === 'soft',
+                      // Default style
+                      'bg-white hover:bg-black/5 border-transparent': !theme?.buttonStyle
+                    }
                   )}
-                  style={{ borderColor: 'var(--theme-primary)' }}
+                  style={{ 
+                    borderColor: theme?.buttonStyle === 'outline' ? 'var(--theme-primary)' : 'transparent'
+                  }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium text-[17px]" style={{ color: 'var(--theme-primary)' }}>
-                        {link.name}
-                      </h3>
-                      {link.description && (
-                        <p className="text-[15px] text-muted-foreground">
-                          {link.description}
-                        </p>
-                      )}
-                    </div>
-                    <ChevronRight 
-                      className="h-5 w-5 group-hover:translate-x-0.5 transition-transform" 
-                      style={{ color: 'var(--theme-primary)' }}
-                    />
-                  </div>
-                </div>
+                  <h3 className="font-medium text-[17px] text-center" style={{ 
+                    color: theme?.buttonStyle === 'solid' ? 'var(--theme-secondary)' : 'var(--theme-primary)' 
+                  }}>
+                    {link.title}
+                  </h3>
+                </a>
               ))}
             </div>
           ))}
@@ -166,13 +251,19 @@ export function MobilePreview({ blocks }: MobilePreviewProps) {
       </div>
     </div>
   );
+});
 
+interface MobilePreviewProps {
+  blocks?: Block[];
+}
+
+export function MobilePreview({ blocks = [] }: MobilePreviewProps) {
   return (
     <>
       {/* Desktop Preview */}
       <div className="hidden lg:block w-[375px] h-[667px] bg-background rounded-[3rem] border-8 border-muted shadow-xl">
         <div className="w-full h-full rounded-[2.5rem] overflow-hidden">
-          <PreviewContent />
+          <PreviewContent blocks={blocks} />
         </div>
       </div>
 
@@ -185,7 +276,7 @@ export function MobilePreview({ blocks }: MobilePreviewProps) {
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[80vh]">
-            <PreviewContent />
+            <PreviewContent blocks={blocks} />
           </SheetContent>
         </Sheet>
       </div>

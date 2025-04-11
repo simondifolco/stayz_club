@@ -1,145 +1,119 @@
 "use client";
 
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Link, LinkType, ModuleType, Block } from "./types";
-import { LinkTypeSelector } from "./link-type-selector";
-import { ExternalLinkInput } from "./external-link-input";
-import { PdfUploadInput } from "./pdf-upload-input";
-import { ModuleTypeSelector } from "./module-type-selector";
+import { EditLinkDialogProps, LinkType } from "./types";
 
-interface EditLinkDialogProps {
-  link: Link;
-  blockId: number;
-  blocks: Block[];
-  onEdit: (blockId: number, targetBlockId: number, linkId: number, name: string, status: Link['status'], type: LinkType, url?: string, pdfFile?: File, moduleType?: ModuleType) => void;
-  onDelete: () => void;
-}
-
-export function EditLinkDialog({ 
-  link, 
-  blockId, 
-  blocks,
-  onEdit,
-  onDelete
+export function EditLinkDialog({
+  isOpen,
+  onOpenChange,
+  onSubmit,
+  defaultValues
 }: EditLinkDialogProps) {
-  const [name, setName] = useState(link.name);
-  const [selectedBlockId, setSelectedBlockId] = useState(blockId.toString());
-  const [type, setType] = useState<LinkType>(link.type);
-  const [url, setUrl] = useState<string>(link.url || "");
-  const [pdfFile, setPdfFile] = useState<File | undefined>(link.pdfFile);
-  const [moduleType, setModuleType] = useState<ModuleType | undefined>(link.moduleType);
-  const [open, setOpen] = useState(false);
-
-  const handleEdit = () => {
-    if (name.trim()) {
-      onEdit(blockId, parseInt(selectedBlockId), link.id, name, link.status, type, url, pdfFile, moduleType);
-      setOpen(false);
-    }
-  };
-
-  const handleDelete = () => {
-    onDelete();
-    setOpen(false);
-  };
+  const [title, setTitle] = useState(defaultValues?.title ?? "");
+  const [type, setType] = useState<LinkType>(defaultValues?.type ?? "external");
+  const [url, setUrl] = useState(defaultValues?.url ?? "");
+  const [pdfUrl, setPdfUrl] = useState(defaultValues?.pdfUrl ?? "");
 
   const isValid = () => {
-    if (!name.trim()) return false;
-    switch (type) {
-      case 'external':
-        return !!url.trim();
-      case 'pdf':
-        return !!pdfFile;
-      case 'module':
-        return !!moduleType;
-      default:
-        return false;
-    }
+    if (!title.trim()) return false;
+    return type === "external" ? !!url.trim() : !!pdfUrl.trim();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isValid()) return;
+
+    await onSubmit({
+      title,
+      type,
+      url: type === "external" ? url : undefined,
+      pdfUrl: type === "pdf" ? pdfUrl : undefined,
+    });
+    setTitle("");
+    setType("external");
+    setUrl("");
+    setPdfUrl("");
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Link</DialogTitle>
-          <DialogDescription>
-            Choose the type of link. External links point to other websites, PDFs are downloadable documents, and modules are interactive features.
-          </DialogDescription>
+          <DialogTitle>
+            {defaultValues ? "Edit Link" : "Add Link"}
+          </DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="title">Title</Label>
             <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter link name"
+              id="title"
+              placeholder="Enter link title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="block">Block</Label>
-            <Select value={selectedBlockId} onValueChange={setSelectedBlockId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select block" />
-              </SelectTrigger>
-              <SelectContent>
-                {blocks.map(block => (
-                  <SelectItem key={block.id} value={block.id.toString()}>
-                    {block.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
             <Label>Type</Label>
-            <LinkTypeSelector value={type} onValueChange={setType} />
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={type === "external" ? "default" : "outline"}
+                onClick={() => setType("external")}
+                className="flex-1"
+              >
+                External Link
+              </Button>
+              <Button
+                type="button"
+                variant={type === "pdf" ? "default" : "outline"}
+                onClick={() => setType("pdf")}
+                className="flex-1"
+              >
+                PDF Document
+              </Button>
+            </div>
           </div>
-          {type === 'external' && (
-            <ExternalLinkInput value={url} onChange={setUrl} />
-          )}
-          {type === 'pdf' && (
-            <PdfUploadInput onChange={setPdfFile} />
-          )}
-          {type === 'module' && (
+          {type === "external" ? (
             <div className="grid gap-2">
-              <Label>Module Type</Label>
-              <ModuleTypeSelector value={moduleType} onChange={setModuleType} />
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                type="url"
+                placeholder="https://..."
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+              />
+            </div>
+          ) : (
+            <div className="grid gap-2">
+              <Label htmlFor="pdfUrl">PDF URL</Label>
+              <Input
+                id="pdfUrl"
+                type="url"
+                placeholder="https://..."
+                value={pdfUrl}
+                onChange={(e) => setPdfUrl(e.target.value)}
+              />
             </div>
           )}
-        </div>
-        <DialogFooter className="flex items-center justify-between">
-          <Button variant="destructive" onClick={handleDelete}>
-            Delete Link
-          </Button>
-          <Button onClick={handleEdit} disabled={!isValid()}>
-            Save Changes
-          </Button>
-        </DialogFooter>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!isValid()}>
+              {defaultValues ? "Save Changes" : "Add Link"}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

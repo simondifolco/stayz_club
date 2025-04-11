@@ -73,7 +73,7 @@ export function ProfileDialogs() {
     }
   };
 
-  const handleThemeUpdate = async (updates: Partial<typeof selectedHotel.theme>) => {
+  const handleThemeUpdate = async (updates: Partial<NonNullable<typeof selectedHotel>['theme']>) => {
     if (!selectedHotel) return;
     setIsLoading(true);
     try {

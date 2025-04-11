@@ -4,8 +4,9 @@ import { Manrope } from "next/font/google";
 import { Montserrat } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as SonnerToaster } from "sonner";
+import { Toaster } from "sonner";
+import { Providers } from "./providers";
+import { cn } from "@/lib/utils";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -41,31 +42,46 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
 
+function ThemeScript() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          let isDark = window.matchMedia('(prefers-color-scheme: dark)')
+          let theme = localStorage.getItem('theme')
+          if (theme === 'system' || !theme) {
+            document.documentElement.classList.toggle('dark', isDark.matches)
+          } else {
+            document.documentElement.classList.toggle('dark', theme === 'dark')
+          }
+          document.documentElement.style.colorScheme = isDark.matches ? 'dark' : 'light'
+        `,
+      }}
+    />
+  )
+}
+
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html 
-      lang="en" 
-      className={`${geistSans.variable} ${inter.variable} ${manrope.variable} ${montserrat.variable}`} 
-      suppressHydrationWarning
-    >
-      <body className="bg-background text-foreground">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
+      <body className={cn("min-h-screen bg-background font-sans antialiased", geistSans.variable, inter.variable, manrope.variable, montserrat.variable)}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen flex flex-col">
-            <div className="flex-1">
-              {children}
-            </div>
-          </div>
-          <Toaster />
-          <SonnerToaster position="bottom-right" />
+          <Providers>
+            {children}
+            <Toaster />
+          </Providers>
         </ThemeProvider>
       </body>
     </html>
