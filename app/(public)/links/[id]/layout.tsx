@@ -1,18 +1,62 @@
-import Link from "next/link";
+import { createClient } from "@/utils/supabase/server";
+import { notFound } from "next/navigation";
+import { CornerActions } from "./components/actions";
 
-interface LinksLayoutProps {
-  children: React.ReactNode;
+interface HotelData {
+  id: string;
+  name: string;
+  logo_url: string | null;
 }
 
-export default function LinksLayout({ children }: LinksLayoutProps) {
+interface LayoutProps {
+  children: React.ReactNode;
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+async function getHotelData(slug: string): Promise<HotelData | null> {
+  try {
+    const supabase = await createClient();
+    const { data: hotel, error } = await supabase
+      .from('hotels')
+      .select(`
+        id,
+        name,
+        logo_url
+      `)
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .single();
+
+    if (error) {
+      console.error('Error fetching hotel:', error);
+      return null;
+    }
+
+    return hotel;
+  } catch (error) {
+    console.error('Error in getHotelData:', error);
+    return null;
+  }
+}
+
+export default async function Layout({ children, params }: LayoutProps) {
+  const resolvedParams = await params;
+  
+  if (!resolvedParams.id) {
+    notFound();
+  }
+
+  const hotel = await getHotelData(resolvedParams.id);
+
+  if (!hotel) {
+    notFound();
+  }
+
   return (
-    <main className="relative min-h-screen bg-background">
+    <main className="relative min-h-screen">
       {children}
-      <footer className="absolute bottom-0 w-full py-4 text-center text-sm text-muted-foreground">
-        <Link href="/" className="hover:opacity-80">
-          Powered by <span className="text-3xl font-geist bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:from-primary/90 hover:to-primary transition-colors uppercase tracking-tighter font-black">stayz<span className="font-extralight lowercase"> .club</span></span>
-        </Link>
-      </footer>
     </main>
   );
 } 
