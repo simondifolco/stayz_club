@@ -39,6 +39,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useHotelItems } from "@/hooks/use-hotel-items";
+import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 const BUTTON_STYLES = {
   minimal: "Minimal",
@@ -52,6 +55,138 @@ const FONTS = {
   inter: "Inter",
   manrope: "Manrope",
   montserrat: "Montserrat",
+} as const;
+
+const PREMADE_THEMES = {
+  // Modern & Minimalist
+  'modern-noir': {
+    name: 'Modern Noir',
+    primaryColor: '#000000',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
+    buttonStyle: 'minimal' as const,
+    category: 'Modern'
+  },
+  'modern-sage': {
+    name: 'Modern Sage',
+    primaryColor: '#4A5D5C',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F5F5F0',
+    buttonStyle: 'soft' as const,
+    category: 'Modern'
+  },
+  'modern-sand': {
+    name: 'Modern Sand',
+    primaryColor: '#A67F5D',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F7F3EE',
+    buttonStyle: 'outline' as const,
+    category: 'Modern'
+  },
+
+  // Luxury & Classic
+  'classic-gold': {
+    name: 'Classic Gold',
+    primaryColor: '#927545',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F9F6F0',
+    buttonStyle: 'outline' as const,
+    category: 'Classic'
+  },
+  'classic-burgundy': {
+    name: 'Classic Burgundy',
+    primaryColor: '#742938',
+    secondaryColor: '#F9E5D9',
+    backgroundColor: '#FFFFFF',
+    buttonStyle: 'solid' as const,
+    category: 'Classic'
+  },
+  'classic-navy': {
+    name: 'Classic Navy',
+    primaryColor: '#1B365D',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F5F7FA',
+    buttonStyle: 'outline' as const,
+    category: 'Classic'
+  },
+
+  // Boutique & Trendy
+  'trendy-coral': {
+    name: 'Trendy Coral',
+    primaryColor: '#FF6F61',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#FFF5F4',
+    buttonStyle: 'soft' as const,
+    category: 'Trendy'
+  },
+  'trendy-lilac': {
+    name: 'Trendy Lilac',
+    primaryColor: '#9F8AC3',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F7F5FB',
+    buttonStyle: 'solid' as const,
+    category: 'Trendy'
+  },
+  'trendy-mint': {
+    name: 'Trendy Mint',
+    primaryColor: '#7EBEA9',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F0F7F5',
+    buttonStyle: 'soft' as const,
+    category: 'Trendy'
+  },
+
+  // Beach & Resort
+  'resort-azure': {
+    name: 'Resort Azure',
+    primaryColor: '#3FA7D6',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F5FBFF',
+    buttonStyle: 'solid' as const,
+    category: 'Resort'
+  },
+  'resort-palm': {
+    name: 'Resort Palm',
+    primaryColor: '#568C63',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F5F8F5',
+    buttonStyle: 'soft' as const,
+    category: 'Resort'
+  },
+  'resort-sunset': {
+    name: 'Resort Sunset',
+    primaryColor: '#E8846B',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#FFF6F4',
+    buttonStyle: 'outline' as const,
+    category: 'Resort'
+  },
+
+  // Vintage & Rustic
+  'vintage-terracotta': {
+    name: 'Vintage Terracotta',
+    primaryColor: '#C67D5B',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F9F3EF',
+    buttonStyle: 'outline' as const,
+    category: 'Vintage'
+  },
+  'vintage-olive': {
+    name: 'Vintage Olive',
+    primaryColor: '#7B7F58',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F7F8F2',
+    buttonStyle: 'soft' as const,
+    category: 'Vintage'
+  },
+  'vintage-slate': {
+    name: 'Vintage Slate',
+    primaryColor: '#5B6E7B',
+    secondaryColor: '#FFFFFF',
+    backgroundColor: '#F5F7F9',
+    buttonStyle: 'minimal' as const,
+    category: 'Vintage'
+  },
 } as const;
 
 const themeFormSchema = z.object({
@@ -98,6 +233,15 @@ export default function ThemeSettings() {
       });
     }
   }, [selectedHotel, form]);
+
+  // Function to apply premade theme
+  const applyPremadeTheme = (themeKey: keyof typeof PREMADE_THEMES) => {
+    const theme = PREMADE_THEMES[themeKey];
+    form.setValue('primaryColor', theme.primaryColor);
+    form.setValue('secondaryColor', theme.secondaryColor);
+    form.setValue('backgroundColor', theme.backgroundColor);
+    form.setValue('buttonStyle', theme.buttonStyle);
+  };
 
   async function onSubmit(data: ThemeFormValues) {
     if (!selectedHotel) {
@@ -175,6 +319,72 @@ export default function ThemeSettings() {
                       <TabsTrigger value="typography">Typography</TabsTrigger>
                     </TabsList>
                     <TabsContent value="colors" className="space-y-6">
+                      {/* Premade Themes */}
+                      <Collapsible>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-base font-medium">Premade Themes</h3>
+                            <p className="text-sm text-muted-foreground">
+                              Choose from our collection of carefully crafted themes
+                            </p>
+                          </div>
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="w-9 p-0">
+                              <ChevronDown className="h-4 w-4" />
+                              <span className="sr-only">Toggle premade themes</span>
+                            </Button>
+                          </CollapsibleTrigger>
+                        </div>
+                        <CollapsibleContent className="space-y-6">
+                          {/* Theme Categories */}
+                          {(['Modern', 'Classic', 'Trendy', 'Resort', 'Vintage'] as const).map((category) => (
+                            <div key={category} className="space-y-3">
+                              <h4 className="text-sm font-medium text-muted-foreground">{category}</h4>
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {Object.entries(PREMADE_THEMES)
+                                  .filter(([_, theme]) => theme.category === category)
+                                  .map(([key, theme]) => (
+                                    <button
+                                      key={key}
+                                      onClick={() => applyPremadeTheme(key as keyof typeof PREMADE_THEMES)}
+                                      className="group relative aspect-[9/16] rounded-xl overflow-hidden border-2 transition-all hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                                      style={{ backgroundColor: theme.backgroundColor }}
+                                    >
+                                      {/* Theme Preview */}
+                                      <div className="absolute inset-0 p-4 flex flex-col items-center gap-2">
+                                        {/* Profile Circle */}
+                                        <div 
+                                          className="w-12 h-12 rounded-full border-2"
+                                          style={{ 
+                                            borderColor: theme.primaryColor,
+                                            backgroundColor: theme.backgroundColor 
+                                          }}
+                                        />
+                                        {/* Button Examples */}
+                                        <div className="w-full space-y-2">
+                                          {[1, 2, 3].map((i) => (
+                                            <div
+                                              key={i}
+                                              className="w-full h-3 rounded-full"
+                                              style={{ backgroundColor: theme.primaryColor }}
+                                            />
+                                          ))}
+                                        </div>
+                                      </div>
+                                      {/* Theme Name */}
+                                      <div className="absolute bottom-0 inset-x-0 p-2 text-center text-sm font-medium bg-black/50 text-white">
+                                        {theme.name}
+                                      </div>
+                                    </button>
+                                  ))}
+                              </div>
+                            </div>
+                          ))}
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      <Separator />
+
                       <FormField
                         control={form.control}
                         name="backgroundColor"

@@ -16,35 +16,7 @@ const PreviewContent = memo(function PreviewContent({ blocks = [] }: PreviewCont
   const { selectedHotel } = useHotel();
   const theme = selectedHotel?.theme;
 
-  // Create a stable dependency value for blocks and their sort orders
-  const blocksDependency = useMemo(() => {
-    return JSON.stringify({
-      blocks: blocks?.map(block => ({
-        id: block.id,
-        sort_order: block.sort_order,
-        links: block.links.map(link => ({
-          id: link.id,
-          sort_order: link.sort_order
-        }))
-      }))
-    });
-  }, [blocks]);
-
-  // Force re-render when theme or blocks change
-  useEffect(() => {}, [
-    theme?.font,
-    theme?.primaryColor,
-    theme?.secondaryColor,
-    theme?.showLogo,
-    theme?.bookingUrl,
-    theme?.contactEmail,
-    selectedHotel?.logo_url,
-    selectedHotel?.name,
-    selectedHotel?.description,
-    blocksDependency // Single stable dependency for blocks
-  ]);
-
-  // Sort blocks and links
+  // Sort blocks and links - moved outside useEffect for better performance
   const sortedBlocks = useMemo(() => {
     return [...(blocks || [])].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
   }, [blocks]);
@@ -56,22 +28,39 @@ const PreviewContent = memo(function PreviewContent({ blocks = [] }: PreviewCont
     }));
   }, [sortedBlocks]);
 
+  // Force re-render when any relevant prop changes
+  useEffect(() => {
+    // This empty effect ensures re-render on dependency changes
+  }, [
+    blocks, // Direct blocks dependency
+    sortedBlocks,
+    blocksWithSortedLinks,
+    theme,
+    selectedHotel?.id // Add hotel ID dependency
+  ]);
+
+  // Memoize the style object to prevent unnecessary re-renders
+  const containerStyle = useMemo(() => ({
+    "--theme-primary": theme?.primaryColor || "#000000",
+    "--theme-secondary": theme?.secondaryColor || "#ffffff",
+    backgroundColor: theme?.backgroundColor || "#fafafa",
+  } as React.CSSProperties), [theme?.primaryColor, theme?.secondaryColor, theme?.backgroundColor]);
+
+  // Memoize the container className
+  const containerClassName = useMemo(() => cn(
+    "w-full h-full overflow-y-auto",
+    {
+      'font-geist': theme?.font === 'geist',
+      'font-inter': theme?.font === 'inter',
+      'font-manrope': theme?.font === 'manrope',
+      'font-montserrat': theme?.font === 'montserrat',
+    }
+  ), [theme?.font]);
+
   return (
     <div 
-      className={cn(
-        "w-full h-full overflow-y-auto",
-        {
-          'font-geist': theme?.font === 'geist',
-          'font-inter': theme?.font === 'inter',
-          'font-manrope': theme?.font === 'manrope',
-          'font-montserrat': theme?.font === 'montserrat',
-        }
-      )}
-      style={{
-        "--theme-primary": theme?.primaryColor || "#000000",
-        "--theme-secondary": theme?.secondaryColor || "#ffffff",
-        backgroundColor: theme?.backgroundColor || "#fafafa",
-      } as React.CSSProperties}
+      className={containerClassName}
+      style={containerStyle}
     >
       <div className="px-4 py-8">
         {/* Header Actions */}
@@ -245,7 +234,7 @@ const PreviewContent = memo(function PreviewContent({ blocks = [] }: PreviewCont
         {/* Powered By */}
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Powered by <span className="font-medium">STAYZ.club</span>
+            Powered by <span className="text-3xl font-geist bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:from-primary/90 hover:to-primary transition-colors uppercase tracking-tighter font-black">stayz<span className="font-extralight lowercase">.club</span></span>
           </p>
         </div>
       </div>

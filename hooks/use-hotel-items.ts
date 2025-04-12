@@ -152,13 +152,16 @@ export function useHotelItems() {
 
       if (error) throw error;
 
-      // Update the temporary ID with the real one
+      // Update the temporary ID with the real one and trigger a refetch
       setBlocks(prev => prev.map(block => 
         block.id === tempId ? { ...block, id: data.id } : block
       ));
 
-      // Refetch to get the real ID and any other server-side changes
-      await fetchItems();
+      // Invalidate and refetch to ensure consistency
+      await queryClient.invalidateQueries({ 
+        queryKey: ['hotel-items', selectedHotel.id],
+        exact: true 
+      });
 
       return data;
     } catch (error) {
@@ -167,7 +170,7 @@ export function useHotelItems() {
       toast.error('Failed to add block');
       throw error;
     }
-  }, [selectedHotel?.id, blocks.length, supabase, fetchItems]);
+  }, [selectedHotel?.id, blocks.length, supabase, queryClient]);
 
   // Add a link
   const addLink = useCallback(async (
@@ -249,8 +252,11 @@ export function useHotelItems() {
           : block
       ));
 
-      // Refetch to get the real ID and any other server-side changes
-      await fetchItems();
+      // Invalidate and refetch to ensure consistency
+      await queryClient.invalidateQueries({ 
+        queryKey: ['hotel-items', selectedHotel.id],
+        exact: true 
+      });
 
       return data;
     } catch (error) {
@@ -263,7 +269,7 @@ export function useHotelItems() {
       toast.error('Failed to add link');
       throw error;
     }
-  }, [selectedHotel?.id, blocks, supabase, fetchItems]);
+  }, [selectedHotel?.id, blocks, supabase, queryClient]);
 
   // Delete a block
   const deleteBlock = useCallback(async (blockId: string) => {

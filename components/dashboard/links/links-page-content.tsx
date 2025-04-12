@@ -308,15 +308,6 @@ export function LinksPageContent() {
               </SortableBlock>
             ))}
           </SortableContext>
-
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setIsAddBlockOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Block
-          </Button>
         </div>
       </DndContext>
 
