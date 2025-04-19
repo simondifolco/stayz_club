@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Block, BlockItem, LinkType, EditBlockDialogProps, EditLinkDialogProps, HotelBlock, HotelLink } from "./types";
+import { Block, BlockItem, LinkType, EditBlockDialogProps, EditLinkDialogProps, HotelBlock, HotelLink, SortOrderItem } from "./types";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { SortableBlock } from "./sortable-block";
@@ -60,8 +60,8 @@ interface LinksPageContentProps {
     pdfUrl?: string
   ) => Promise<void>;
   onDeleteLink: (linkId: string) => Promise<void>;
-  onUpdateBlockSortOrder: (items: HotelBlock[]) => Promise<void>;
-  onUpdateLinkSortOrder: (blockId: string, items: HotelLink[]) => Promise<void>;
+  onUpdateBlockSortOrder: (items: SortOrderItem[]) => Promise<void>;
+  onUpdateLinkSortOrder: (blockId: string, items: SortOrderItem[]) => Promise<void>;
 }
 
 export function LinksPageContent({ 
@@ -116,13 +116,7 @@ export function LinksPageContent({
           // Create items array for all blocks with updated sort orders
           const blockItems = newBlocks.map((block, index) => ({
             id: block.id,
-            hotel_id: "1", // Temporary ID since we're not using hotel context
-            title: block.title,
-            description: block.description,
-            is_active: block.is_active ?? true,
-            sort_order: index,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            sort_order: index
           }));
 
           await onUpdateBlockSortOrder(blockItems);
@@ -140,17 +134,7 @@ export function LinksPageContent({
             // Create items array for all links with updated sort orders
             const linkItems = newLinks.map((link, index) => ({
               id: link.id,
-              hotel_id: "1", // Temporary ID since we're not using hotel context
-              block_id: parentBlock.id,
-              title: link.title,
-              description: link.description,
-              link_type: link.type,
-              url: link.type === 'external' ? link.url : null,
-              pdf_url: link.type === 'pdf' ? link.pdfUrl : null,
-              is_active: link.is_active ?? true,
-              sort_order: index,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
+              sort_order: index
             }));
 
             await onUpdateLinkSortOrder(parentBlock.id, linkItems);

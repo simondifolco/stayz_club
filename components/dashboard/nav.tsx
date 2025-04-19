@@ -136,7 +136,6 @@ function HotelSelector() {
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-medium">{selectedHotel?.name || "Select Hotel"}</span>
-                <span className="text-xs text-muted-foreground">Hotel</span>
               </div>
             </div>
             <ChevronDown className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />

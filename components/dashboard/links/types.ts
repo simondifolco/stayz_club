@@ -62,6 +62,11 @@ export interface EditBlockDialogProps {
   defaultValues?: BlockItem;
 }
 
+export interface SortOrderItem {
+  id: string;
+  sort_order: number;
+}
+
 export interface EditLinkDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;

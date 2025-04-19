@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Block, BlockItem, Link, HotelBlock, HotelLink } from '@/components/dashboard/links/types';
+import { Block, BlockItem, Link, HotelBlock, HotelLink, SortOrderItem } from '@/components/dashboard/links/types';
 import { toast } from 'sonner';
 import { useHotel } from '@/contexts/hotel-context';
 import { createClient } from '@/utils/supabase/client';
@@ -280,69 +280,122 @@ export function useBlocks() {
     }
   }, [selectedHotel]);
 
-  const updateBlockSortOrder = useCallback(async (items: HotelBlock[]) => {
+  const updateBlockSortOrder = useCallback(async (items: SortOrderItem[]) => {
     if (!selectedHotel) throw new Error('No hotel selected');
 
     try {
-      const updates = items.map(item => ({
-        id: item.id,
-        sort_order: item.sort_order
-      }));
+      console.log('Starting block sort order update:', { items, hotelId: selectedHotel.id });
 
-      const { error } = await supabase
-        .from('hotel_blocks')
-        .upsert(updates)
-        .eq('hotel_id', selectedHotel.id);
+      // Update each block individually
+      for (const item of items) {
+        const { error, data } = await supabase
+          .from('hotel_blocks')
+          .update({ sort_order: item.sort_order })
+          .eq('id', item.id)
+          .eq('hotel_id', selectedHotel.id)
+          .select();
 
-      if (error) throw error;
+        if (error) {
+          console.error('Error updating block:', { error, blockId: item.id });
+          throw error;
+        }
 
+        console.log('Updated block successfully:', { blockId: item.id, data });
+      }
+
+      // Update local state with new sort orders
       const sortedBlocks = items.map(item => {
         const block = blocks.find(b => b.id === item.id);
+        if (!block) {
+          console.warn(`Block ${item.id} not found`);
+          return null;
+        }
         return {
-          ...block!,
+          ...block,
           sort_order: item.sort_order
         };
-      });
+      }).filter(Boolean) as Block[];
+
       setBlocks(sortedBlocks);
+      console.log('Block sort order update completed successfully');
     } catch (err) {
+      console.error('Failed to update block order:', {
+        error: err,
+        items,
+        hotelId: selectedHotel?.id
+      });
+      
+      // Check if it's a Supabase error with details
+      if (typeof err === 'object' && err !== null && 'code' in err) {
+        const supabaseError = err as { code: string; message: string; details?: string };
+        throw new Error(`Database error: ${supabaseError.message} (${supabaseError.code})`);
+      }
+      
       const error = err instanceof Error ? err : new Error('Failed to update block order');
       setError(error);
       throw error;
     }
   }, [selectedHotel, blocks]);
 
-  const updateLinkSortOrder = useCallback(async (blockId: string, items: HotelLink[]) => {
+  const updateLinkSortOrder = useCallback(async (blockId: string, items: SortOrderItem[]) => {
     if (!selectedHotel) throw new Error('No hotel selected');
 
     try {
-      const updates = items.map(item => ({
-        id: item.id,
-        sort_order: item.sort_order
-      }));
+      console.log('Starting link sort order update:', { items, blockId, hotelId: selectedHotel.id });
 
-      const { error } = await supabase
-        .from('hotel_links')
-        .upsert(updates)
-        .eq('hotel_id', selectedHotel.id)
-        .eq('block_id', blockId);
+      // Update each link individually
+      for (const item of items) {
+        const { error, data } = await supabase
+          .from('hotel_links')
+          .update({ sort_order: item.sort_order })
+          .eq('id', item.id)
+          .eq('hotel_id', selectedHotel.id)
+          .eq('block_id', blockId)
+          .select();
 
-      if (error) throw error;
+        if (error) {
+          console.error('Error updating link:', { error, linkId: item.id });
+          throw error;
+        }
 
+        console.log('Updated link successfully:', { linkId: item.id, data });
+      }
+
+      // Update local state
       setBlocks(prev => prev.map(block => 
         block.id === blockId
           ? {
               ...block,
               links: items.map(item => {
                 const link = block.links.find(l => l.id === item.id);
+                if (!link) {
+                  console.warn(`Link ${item.id} not found in block ${blockId}`);
+                  return null;
+                }
                 return {
-                  ...link!,
+                  ...link,
                   sort_order: item.sort_order
                 };
-              })
+              }).filter(Boolean) as Link[]
             }
           : block
       ));
+
+      console.log('Sort order update completed successfully');
     } catch (err) {
+      console.error('Failed to update link order:', {
+        error: err,
+        blockId,
+        items,
+        hotelId: selectedHotel?.id
+      });
+      
+      // Check if it's a Supabase error with details
+      if (typeof err === 'object' && err !== null && 'code' in err) {
+        const supabaseError = err as { code: string; message: string; details?: string };
+        throw new Error(`Database error: ${supabaseError.message} (${supabaseError.code})`);
+      }
+      
       const error = err instanceof Error ? err : new Error('Failed to update link order');
       setError(error);
       throw error;
