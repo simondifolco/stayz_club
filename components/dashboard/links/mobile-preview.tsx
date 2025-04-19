@@ -234,7 +234,7 @@ const PreviewContent = memo(function PreviewContent({ blocks = [] }: PreviewCont
         {/* Powered By */}
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Powered by <span className="text-3xl font-geist bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:from-primary/90 hover:to-primary transition-colors uppercase tracking-tighter font-black">stayz<span className="font-extralight lowercase">.club</span></span>
+            Powered by <span className="block mt-1 text-3xl font-geist bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:from-primary/90 hover:to-primary transition-colors uppercase tracking-tighter font-black">stayz<span className="font-extralight lowercase">.club</span></span>
           </p>
         </div>
       </div>
