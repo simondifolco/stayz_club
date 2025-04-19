@@ -1,12 +1,10 @@
-import { Geist } from "next/font/google";
-import { Inter } from "next/font/google";
-import { Manrope } from "next/font/google";
-import { Montserrat } from "next/font/google";
-import { ThemeProvider } from "next-themes";
-import "./globals.css";
-import { Toaster } from "sonner";
+import { GeistSans } from 'geist/font';
+import { GeistMono } from 'geist/font';
+import { Inter, Manrope, Montserrat } from 'next/font/google';
+import { ThemeProvider } from '@/components/theme-provider';
 import { Providers } from "./providers";
 import { cn } from "@/lib/utils";
+import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -14,52 +12,13 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Stayz Club",
-  description: "Your customer experiences at its best",
+  title: "Stayz.club - Hotel Link in Bio Platform",
+  description: "Create beautiful link in bio pages for your hotel.",
 };
 
-const geistSans = Geist({
-  display: "swap",
-  subsets: ["latin"],
-  variable: '--font-geist',
-});
-
-const inter = Inter({
-  display: "swap",
-  subsets: ["latin"],
-  variable: '--font-inter',
-});
-
-const manrope = Manrope({
-  display: "swap",
-  subsets: ["latin"],
-  variable: '--font-manrope',
-});
-
-const montserrat = Montserrat({
-  display: "swap",
-  subsets: ["latin"],
-  variable: '--font-montserrat',
-});
-
-function ThemeScript() {
-  return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: `
-          let isDark = window.matchMedia('(prefers-color-scheme: dark)')
-          let theme = localStorage.getItem('theme')
-          if (theme === 'system' || !theme) {
-            document.documentElement.classList.toggle('dark', isDark.matches)
-          } else {
-            document.documentElement.classList.toggle('dark', theme === 'dark')
-          }
-          document.documentElement.style.colorScheme = isDark.matches ? 'dark' : 'light'
-        `,
-      }}
-    />
-  )
-}
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' });
+const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat' });
 
 export default function RootLayout({
   children,
@@ -68,10 +27,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <ThemeScript />
-      </head>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", geistSans.variable, inter.variable, manrope.variable, montserrat.variable)}>
+      <body className={cn(
+        'min-h-screen bg-background font-sans antialiased',
+        GeistSans.variable,
+        GeistMono.variable,
+        inter.variable,
+        manrope.variable,
+        montserrat.variable
+      )}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -80,7 +43,6 @@ export default function RootLayout({
         >
           <Providers>
             {children}
-            <Toaster />
           </Providers>
         </ThemeProvider>
       </body>

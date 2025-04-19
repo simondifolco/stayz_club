@@ -19,7 +19,7 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="flex flex-col space-y-4">
+          <form action={signInAction} className="flex flex-col space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -59,7 +59,6 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
             <SubmitButton
               className="w-full"
               pendingText="Signing In..."
-              formAction={signInAction}
             >
               Sign in
             </SubmitButton>

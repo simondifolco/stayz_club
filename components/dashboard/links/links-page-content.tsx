@@ -17,12 +17,11 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Block, BlockItem, HotelItem, LinkType, EditBlockDialogProps, EditLinkDialogProps } from "./types";
+import { Block, BlockItem, LinkType, EditBlockDialogProps, EditLinkDialogProps, HotelBlock, HotelLink } from "./types";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { SortableBlock } from "./sortable-block";
-import { useHotelItems } from "@/hooks/use-hotel-items";
-import { useHotel } from "@/contexts/hotel-context";
+import { useBlocks } from "@/hooks/use-blocks";
 import { EditBlockDialog } from "./edit-block-dialog";
 import { EditLinkDialog } from "./edit-link-dialog";
 import { useState } from "react";
@@ -36,12 +35,51 @@ interface LinkFormData {
   pdfUrl?: string;
 }
 
-export function LinksPageContent() {
-  const { selectedHotel } = useHotel();
-  const { blocks, loading, error, addBlock, addLink, deleteBlock, deleteLink, editBlock, editLink, updateSortOrder } = useHotelItems();
+interface LinksPageContentProps {
+  blocks: Block[];
+  loading: boolean;
+  error: Error | null;
+  isAddBlockOpen: boolean;
+  setIsAddBlockOpen: (open: boolean) => void;
+  onAddBlock: (title: string) => Promise<void>;
+  onEditBlock: (blockId: string, title: string) => Promise<void>;
+  onDeleteBlock: (blockId: string) => Promise<void>;
+  onAddLink: (
+    blockId: string,
+    title: string,
+    type: LinkType,
+    url?: string,
+    pdfUrl?: string
+  ) => Promise<void>;
+  onEditLink: (
+    linkId: string,
+    blockId: string,
+    title: string,
+    type: LinkType,
+    url?: string,
+    pdfUrl?: string
+  ) => Promise<void>;
+  onDeleteLink: (linkId: string) => Promise<void>;
+  onUpdateBlockSortOrder: (items: HotelBlock[]) => Promise<void>;
+  onUpdateLinkSortOrder: (blockId: string, items: HotelLink[]) => Promise<void>;
+}
 
+export function LinksPageContent({ 
+  blocks,
+  loading,
+  error,
+  isAddBlockOpen,
+  setIsAddBlockOpen,
+  onAddBlock,
+  onEditBlock,
+  onDeleteBlock,
+  onAddLink,
+  onEditLink,
+  onDeleteLink,
+  onUpdateBlockSortOrder,
+  onUpdateLinkSortOrder
+}: LinksPageContentProps) {
   // Dialog states
-  const [isAddBlockOpen, setIsAddBlockOpen] = useState(false);
   const [isEditBlockOpen, setIsEditBlockOpen] = useState(false);
   const [isAddLinkOpen, setIsAddLinkOpen] = useState(false);
   const [isEditLinkOpen, setIsEditLinkOpen] = useState(false);
@@ -62,7 +100,7 @@ export function LinksPageContent() {
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (!over || !selectedHotel) return;
+    if (!over) return;
 
     try {
       if (active.id !== over.id) {
@@ -76,38 +114,36 @@ export function LinksPageContent() {
           const newBlocks = arrayMove(blocks, oldIndex, newIndex);
           
           // Create items array for all blocks with updated sort orders
-          const blockItems: HotelItem[] = newBlocks.map((block, index) => ({
+          const blockItems = newBlocks.map((block, index) => ({
             id: block.id,
-            hotel_id: selectedHotel.id.toString(),
+            hotel_id: "1", // Temporary ID since we're not using hotel context
             title: block.title,
             description: block.description,
-            item_type: 'block',
             is_active: block.is_active ?? true,
             sort_order: index,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }));
 
-          await updateSortOrder(blockItems);
+          await onUpdateBlockSortOrder(blockItems);
         } else {
           // Handle link dragging
-          const parentBlock = blocks.find((block) => 
+          const parentBlock = blocks.find((block) =>
             block.links.some((link) => link.id === active.id)
           );
-          
+
           if (parentBlock) {
             const oldIndex = parentBlock.links.findIndex((link) => link.id === active.id);
             const newIndex = parentBlock.links.findIndex((link) => link.id === over.id);
             const newLinks = arrayMove(parentBlock.links, oldIndex, newIndex);
 
-            // Create items array for all links in the block with updated sort orders
-            const linkItems: HotelItem[] = newLinks.map((link, index) => ({
+            // Create items array for all links with updated sort orders
+            const linkItems = newLinks.map((link, index) => ({
               id: link.id,
-              hotel_id: selectedHotel.id.toString(),
-              parent_id: parentBlock.id,
+              hotel_id: "1", // Temporary ID since we're not using hotel context
+              block_id: parentBlock.id,
               title: link.title,
               description: link.description,
-              item_type: 'link',
               link_type: link.type,
               url: link.type === 'external' ? link.url : null,
               pdf_url: link.type === 'pdf' ? link.pdfUrl : null,
@@ -117,7 +153,7 @@ export function LinksPageContent() {
               updated_at: new Date().toISOString()
             }));
 
-            await updateSortOrder(linkItems);
+            await onUpdateLinkSortOrder(parentBlock.id, linkItems);
           }
         }
       }
@@ -125,12 +161,11 @@ export function LinksPageContent() {
       console.error('Error updating sort order:', error);
       toast.error('Failed to update order');
     }
-  }, [blocks, selectedHotel, updateSortOrder]);
+  }, [blocks, onUpdateBlockSortOrder, onUpdateLinkSortOrder]);
 
   const handleAddBlock = async (title: string) => {
     try {
-      await addBlock(title);
-      setIsAddBlockOpen(false);
+      await onAddBlock(title);
       toast.success("Block added successfully");
     } catch (error: any) {
       console.error('Error adding block:', error);
@@ -142,7 +177,7 @@ export function LinksPageContent() {
 
   const handleEditBlock = async (blockId: string, title: string) => {
     try {
-      await editBlock(blockId, title);
+      await onEditBlock(blockId, title);
       setIsEditBlockOpen(false);
       setSelectedBlockId(null);
       toast.success("Block updated successfully");
@@ -156,7 +191,7 @@ export function LinksPageContent() {
 
   const handleAddLink = async (blockId: string, data: LinkFormData) => {
     try {
-      await addLink(
+      await onAddLink(
         blockId,
         data.title,
         data.type,
@@ -176,7 +211,7 @@ export function LinksPageContent() {
 
   const handleEditLink = async (linkId: string, blockId: string, data: LinkFormData) => {
     try {
-      await editLink(
+      await onEditLink(
         linkId,
         blockId,
         data.title,
@@ -198,7 +233,7 @@ export function LinksPageContent() {
 
   const handleDeleteBlock = async (blockId: string) => {
     try {
-      await deleteBlock(blockId);
+      await onDeleteBlock(blockId);
       toast.success("Block deleted successfully");
     } catch (error: any) {
       console.error('Error deleting block:', error);
@@ -210,7 +245,7 @@ export function LinksPageContent() {
 
   const handleDeleteLink = async (linkId: string) => {
     try {
-      await deleteLink(linkId);
+      await onDeleteLink(linkId);
       toast.success("Link deleted successfully");
     } catch (error: any) {
       console.error('Error deleting link:', error);
@@ -220,37 +255,17 @@ export function LinksPageContent() {
     }
   };
 
-  if (!selectedHotel) {
+  if (!blocks?.length) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] text-center">
-        <h3 className="text-lg font-semibold mb-2">No Hotel Selected</h3>
-        <p className="text-muted-foreground">Please select a hotel to manage its links.</p>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="space-y-6 animate-pulse">
-        {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-lg border p-6 space-y-4">
-            <div className="h-6 bg-muted rounded w-1/4" />
-              <div className="space-y-2">
-              {[1, 2].map((j) => (
-                  <div key={j} className="h-12 bg-muted rounded" />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[50vh] text-center">
-        <h3 className="text-lg font-semibold text-destructive mb-2">Error Loading Links</h3>
-        <p className="text-muted-foreground">{error.message}</p>
+        <h3 className="text-lg font-semibold mb-2">No Blocks Yet</h3>
+        <p className="text-muted-foreground mb-6">Create your first block to start organizing your links.</p>
+        <Button 
+          onClick={() => setIsAddBlockOpen(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Create Block
+        </Button>
       </div>
     );
   }
@@ -264,14 +279,14 @@ export function LinksPageContent() {
         modifiers={[restrictToVerticalAxis]}
       >
         <div className="space-y-6">
-        <SortableContext
-          items={blocks.map(block => block.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {blocks.map((block) => (
-            <SortableBlock
-              key={block.id}
-              block={block}
+          <SortableContext
+            items={blocks.map(block => block.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {blocks.map((block) => (
+              <SortableBlock
+                key={block.id}
+                block={block}
                 onAddLink={() => {
                   setSelectedBlockId(block.id);
                   setIsAddLinkOpen(true);
@@ -280,7 +295,7 @@ export function LinksPageContent() {
                   setSelectedBlockId(block.id);
                   setIsEditBlockOpen(true);
                 }}
-              onDeleteBlock={() => handleDeleteBlock(block.id)}
+                onDeleteBlock={() => handleDeleteBlock(block.id)}
                 onEditLink={(linkId) => {
                   setSelectedBlockId(block.id);
                   setSelectedLinkId(linkId);
@@ -302,9 +317,9 @@ export function LinksPageContent() {
                         setSelectedLinkId(link.id);
                         setIsEditLinkOpen(true);
                       }}
-            />
-          ))}
-        </SortableContext>
+                    />
+                  ))}
+                </SortableContext>
               </SortableBlock>
             ))}
           </SortableContext>

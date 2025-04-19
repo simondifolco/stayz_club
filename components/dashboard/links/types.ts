@@ -1,15 +1,24 @@
 export type LinkType = 'external' | 'pdf';
-export type ItemType = 'block' | 'link';
 export type ModuleType = 'activities' | 'wellness' | 'dining' | 'tickets' | 'rentals' | 'transfers';
 
-export interface HotelItem {
+export interface HotelBlock {
   id: string;
   hotel_id: string;
-  parent_id?: string;
   title: string;
   description?: string;
-  item_type: 'block' | 'link';
-  link_type?: LinkType;
+  is_active: boolean;
+  sort_order?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HotelLink {
+  id: string;
+  hotel_id: string;
+  block_id: string;
+  title: string;
+  description?: string;
+  link_type: LinkType;
   url?: string | null;
   pdf_url?: string | null;
   is_active: boolean;
@@ -22,6 +31,7 @@ export interface HotelItem {
 export interface Link {
   id: string;
   title: string;
+  description?: string;
   type: LinkType;
   url?: string;
   pdfUrl?: string;
@@ -32,6 +42,7 @@ export interface Link {
 export interface Block {
   id: string;
   title: string;
+  description?: string;
   is_active?: boolean;
   sort_order?: number;
   links: Link[];

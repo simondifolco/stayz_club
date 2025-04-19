@@ -44,14 +44,23 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
+    console.error("Sign in error:", error.message);
     return encodedRedirect("error", "/sign-in", error.message);
   }
+
+  if (!data?.session) {
+    console.error("No session created");
+    return encodedRedirect("error", "/sign-in", "Failed to create session");
+  }
+
+  // Set the session cookie
+  await supabase.auth.setSession(data.session);
 
   return redirect("/dashboard");
 };

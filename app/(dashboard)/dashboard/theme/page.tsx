@@ -38,7 +38,7 @@ import { ProfileDialogs } from "@/components/dashboard/profile/profile-dialogs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { useHotelItems } from "@/hooks/use-hotel-items";
+import { useBlocks } from "@/hooks/use-blocks";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
@@ -212,9 +212,9 @@ const defaultTheme: ThemeFormValues = {
 
 export default function ThemeSettings() {
   const { selectedHotel, setSelectedHotel } = useHotel();
+  const { blocks } = useBlocks();
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
-  const { blocks } = useHotelItems();
 
   const form = useForm<ThemeFormValues>({
     resolver: zodResolver(themeFormSchema),

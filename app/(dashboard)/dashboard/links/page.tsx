@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { Block } from '@/components/dashboard/links/types';
 import { Button } from "@/components/ui/button";
 import { Palette, Plus } from "lucide-react";
-import { useHotelItems } from '@/hooks/use-hotel-items';
-import { AddBlockDialog } from '@/components/dashboard/links/add-block-dialog';
+import { EditBlockDialog } from '@/components/dashboard/links/edit-block-dialog';
+import { useBlocks } from '@/hooks/use-blocks';
 
 const LinksPageContent = dynamic(
   () => import('@/components/dashboard/links/links-page-content').then(mod => mod.LinksPageContent),
@@ -43,11 +43,25 @@ const MobilePreview = dynamic(
 ) as typeof import('@/components/dashboard/links/mobile-preview')['MobilePreview'];
 
 export default function LinksPage() {
-  const { blocks, loading, addBlock } = useHotelItems();
+  const { 
+    blocks, 
+    loading, 
+    error,
+    addBlock,
+    editBlock,
+    deleteBlock,
+    addLink,
+    editLink,
+    deleteLink,
+    updateBlockSortOrder,
+    updateLinkSortOrder
+  } = useBlocks();
+  
   const [isAddBlockDialogOpen, setIsAddBlockDialogOpen] = useState(false);
 
-  const handleAddBlock = async (name: string) => {
-    await addBlock(name);
+  const handleAddBlock = async (title: string) => {
+    await addBlock(title);
+    setIsAddBlockDialogOpen(false);
   };
 
   if (loading) {
@@ -89,7 +103,21 @@ export default function LinksPage() {
               </Link>
             </div>
           </div>
-          <LinksPageContent />
+          <LinksPageContent 
+            blocks={blocks}
+            loading={loading}
+            error={error}
+            onAddBlock={handleAddBlock}
+            onEditBlock={editBlock}
+            onDeleteBlock={deleteBlock}
+            onAddLink={addLink}
+            onEditLink={editLink}
+            onDeleteLink={deleteLink}
+            onUpdateBlockSortOrder={updateBlockSortOrder}
+            onUpdateLinkSortOrder={updateLinkSortOrder}
+            isAddBlockOpen={isAddBlockDialogOpen}
+            setIsAddBlockOpen={setIsAddBlockDialogOpen}
+          />
         </div>
 
         {/* Mobile Preview */}
@@ -97,10 +125,10 @@ export default function LinksPage() {
           <MobilePreview blocks={blocks} />
         </div>
       </div>
-      <AddBlockDialog 
-        open={isAddBlockDialogOpen} 
+      <EditBlockDialog 
+        isOpen={isAddBlockDialogOpen}
         onOpenChange={setIsAddBlockDialogOpen}
-        onAdd={handleAddBlock}
+        onSubmit={handleAddBlock}
       />
     </>
   );

@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/select";
 import { AddHotelDialog } from "./add-hotel-dialog";
 import { useHotel } from "@/contexts/hotel-context";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,11 +52,6 @@ const links = [
     title: "Links",
     href: "/dashboard/links",
     icon: LinkIcon,
-  },
-  {
-    title: "Modules",
-    href: "/dashboard/modules",
-    icon: Briefcase,
   },
   {
     title: "Analytics",
@@ -117,22 +112,14 @@ function NavLinks({ className, onSelect }: { className?: string; onSelect?: () =
 
 function HotelSelector() {
   const { hotels, selectedHotel, setSelectedHotel, addHotel } = useHotel();
-  const { toast } = useToast();
 
   const handleAddHotel = async (hotelData: { name: string; slug: string }) => {
     try {
       await addHotel(hotelData);
-      toast({
-        title: "Success",
-        description: "Hotel created successfully",
-      });
+      toast.success("Hotel created successfully");
     } catch (error: any) {
       console.error("Error creating hotel:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create hotel",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to create hotel");
     }
   };
 
